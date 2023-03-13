@@ -11,9 +11,8 @@ def register() -> InlineKeyboardMarkup:
 
 def language() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton('English', callback_data='EN'),
-         InlineKeyboardButton('Russian', callback_data='RU'),
-         InlineKeyboardButton('Indonesian', callback_data='IN')]
+        [InlineKeyboardButton('English', callback_data='EN')],
+        [InlineKeyboardButton('Русский', callback_data='RU')],
+        [InlineKeyboardButton('Bahasa Indonesia', callback_data='IN')]
     ])
-
     return kb

@@ -2,7 +2,7 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from keyboards.inline import language
-from keyboards.reply import cancel, remove
+from keyboards.reply import cancel, remove, contact
 from database.postgre_user import add_user
 import datetime
 
@@ -10,6 +10,7 @@ import datetime
 class Registration(StatesGroup):
     first_name = State()
     last_name = State()
+    contact = State()
     lang = State()
     phone = State()
 
@@ -30,6 +31,13 @@ async def registration_step_2(msg: types.Message, state: FSMContext):
 async def registration_step_3(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['last_name'] = msg.text
+    await msg.answer(f'Please send your contact', reply_markup=contact())
+    await Registration.next()
+
+
+async def registration_step_4(msg: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['contact'] = msg.contact.phone_number
     await msg.answer(f'Choose a language for the bot.',
                      reply_markup=language())
     await Registration.next()
@@ -59,4 +67,6 @@ def register(dp: Dispatcher):
     dp.register_message_handler(cmd_cancel, text='Cancel', state='*')
     dp.register_message_handler(registration_step_2, state=Registration.first_name)
     dp.register_message_handler(registration_step_3, state=Registration.last_name)
+    dp.register_message_handler(registration_step_4, content_types=types.ContentType.CONTACT,
+                                state=Registration.contact)
     dp.register_callback_query_handler(registration_finish, state=Registration.lang)

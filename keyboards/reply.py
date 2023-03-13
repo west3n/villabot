@@ -8,3 +8,11 @@ def cancel() -> ReplyKeyboardMarkup:
         [KeyboardButton('Cancel')]
     ], resize_keyboard=True)
     return kb
+
+
+def contact() -> ReplyKeyboardMarkup:
+    kb = ReplyKeyboardMarkup(keyboard=[
+        [KeyboardButton('Send contact', request_contact=True)],
+        [KeyboardButton('Cancel')]
+    ], resize_keyboard=True, one_time_keyboard=True)
+    return kb
