@@ -10,11 +10,11 @@ async def status(tg_id: int):
         return None
 
 
-async def add_user(username, tg_id, register, last_activity, data):
+async def add_user(username, tg_id, start_register, last_activity, data):
     cur.execute(
-        "INSERT INTO appart_rentuser (first_name, last_name, username, tg_id, register, last_activity, default_lang) VALUES(%s, %s, %s, %s, %s, %s, %s)",
-        (data.get('first_name'), data.get('last_name'), username, tg_id, register,
-         last_activity, data.get('lang'),))
+        "INSERT INTO appart_rentuser (first_name, last_name, username, tg_id, register, last_activity, default_lang, phone) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)",
+        (data.get('first_name'), data.get('last_name'), username, tg_id, start_register,
+         last_activity, data.get('lang'), data.get('contact'),))
     db.commit()
 
 

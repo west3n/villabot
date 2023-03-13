@@ -11,6 +11,7 @@ class Registration(StatesGroup):
     first_name = State()
     last_name = State()
     lang = State()
+    phone = State()
 
 
 async def registration_step_1(call: types.CallbackQuery):
@@ -40,9 +41,9 @@ async def registration_finish(call: types.CallbackQuery, state: FSMContext):
         data['lang'] = call.data
     username = call.from_user.username
     tg_id = int(call.from_user.id)
-    register = datetime.datetime.now()
-    last_activity = register
-    await add_user(username, tg_id, register, last_activity, data)
+    start_register = datetime.datetime.now()
+    last_activity = start_register
+    await add_user(username, tg_id, start_register, last_activity, data)
     await state.finish()
     await call.message.answer(f'Registration complete!', reply_markup=remove)
 
