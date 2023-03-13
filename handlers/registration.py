@@ -35,6 +35,7 @@ async def registration_step_3(msg: types.Message, state: FSMContext):
 
 
 async def registration_finish(call: types.CallbackQuery, state: FSMContext):
+    await call.message.edit_reply_markup()
     async with state.proxy() as data:
         data['lang'] = call.data
     username = call.from_user.username
