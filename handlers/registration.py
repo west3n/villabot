@@ -9,7 +9,6 @@ import datetime
 
 class Registration(StatesGroup):
     first_name = State()
-    last_name = State()
     contact = State()
     lang = State()
     phone = State()
@@ -21,16 +20,9 @@ async def registration_step_1(call: types.CallbackQuery):
     await Registration.first_name.set()
 
 
-async def registration_step_2(msg: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['first_name'] = msg.text
-    await msg.answer(f'Enter your Surname:')
-    await Registration.next()
-
-
 async def registration_step_3(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['last_name'] = msg.text
+        data['first_name'] = msg.text
     await msg.answer(f'Please send your contact', reply_markup=contact())
     await Registration.next()
 
@@ -48,10 +40,15 @@ async def registration_finish(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         data['lang'] = call.data
     username = call.from_user.username
+    if username is None:
+        username = 'No username'
+    last_name = call.from_user.last_name
+    if last_name is None:
+        last_name = 'No surname in Telegram'
     tg_id = int(call.from_user.id)
     start_register = datetime.datetime.now()
     last_activity = start_register
-    await add_user(username, tg_id, start_register, last_activity, data)
+    await add_user(username, tg_id, start_register, last_activity, data, last_name)
     await state.finish()
     await call.message.answer(f'Registration complete!', reply_markup=remove)
 
@@ -65,8 +62,7 @@ async def cmd_cancel(msg: types.Message, state: FSMContext):
 def register(dp: Dispatcher):
     dp.register_callback_query_handler(registration_step_1, text='register')
     dp.register_message_handler(cmd_cancel, text='Cancel', state='*')
-    dp.register_message_handler(registration_step_2, state=Registration.first_name)
-    dp.register_message_handler(registration_step_3, state=Registration.last_name)
+    dp.register_message_handler(registration_step_3, state=Registration.first_name)
     dp.register_message_handler(registration_step_4, content_types=types.ContentType.CONTACT,
                                 state=Registration.contact)
     dp.register_callback_query_handler(registration_finish, state=Registration.lang)
