@@ -1,4 +1,11 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from typing import List
+
+from aiogram.utils.callback_data import CallbackData
+
+from database.postgre_location import get_location
+
+location_callback = CallbackData("location", "name")
 
 
 def register() -> InlineKeyboardMarkup:
