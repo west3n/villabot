@@ -12,7 +12,8 @@ async def bot_start(msg: types.Message):
     if user:
         last_activity = datetime.datetime.now()
         await update_activity(last_activity, tg_id)
-        await msg.answer(f"Hello, {name}!")
+        await msg.answer(f"Hello, {name}! Happy to see you in VillaBot! 🙌\n"
+                         f"Let's find awesome villa!", reply_markup=inline.get_started())
 
     else:
         await msg.answer(f'{name}, you are not registered, you need to login to start using the bot',
