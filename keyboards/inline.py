@@ -1,5 +1,5 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from typing import List
+from aiogram import types
 
 from aiogram.utils.callback_data import CallbackData
 
@@ -46,34 +46,6 @@ def currency() -> InlineKeyboardMarkup:
         [InlineKeyboardButton('USD', callback_data='usd')],
         [InlineKeyboardButton('Rupiah', callback_data='rupiah')],
         [InlineKeyboardButton('Cancel', callback_data='cancel')]
-    ])
-    return kb
-
-
-def budget_usd() -> InlineKeyboardMarkup:
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton('<650$', callback_data='650$')],
-        [InlineKeyboardButton('650 - 1300$', callback_data='650_1300$')],
-        [InlineKeyboardButton('1300 - 1950$', callback_data='1300_1950$')],
-        [InlineKeyboardButton('1950 - 2600$', callback_data='1950_2600$')],
-        [InlineKeyboardButton('2600 - 3250$', callback_data='2600_3250$')],
-        [InlineKeyboardButton('>3250$', callback_data='3250$')],
-        [InlineKeyboardButton('Done', callback_data='done'),
-         InlineKeyboardButton('Cancel', callback_data='cancel')]
-    ])
-    return kb
-
-
-def budget_rupiah() -> InlineKeyboardMarkup:
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton('< 10 mln', callback_data='10mln')],
-        [InlineKeyboardButton('10 mln - 20 mln', callback_data='10mln_20mln')],
-        [InlineKeyboardButton('20 mln - 30 mln', callback_data='20mln_30mln')],
-        [InlineKeyboardButton('30 mln - 40 mln', callback_data='30mln_40mln')],
-        [InlineKeyboardButton('40 mln - 50 mln', callback_data='40mln_50mln')],
-        [InlineKeyboardButton('> 50 mln', callback_data='50mln')],
-        [InlineKeyboardButton('Done', callback_data='done'),
-         InlineKeyboardButton('Cancel', callback_data='cancel')]
     ])
     return kb
 
