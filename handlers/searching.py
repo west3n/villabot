@@ -39,6 +39,7 @@ async def currency(call: types.CallbackQuery, state: FSMContext):
 
 
 async def budget(call: types.CallbackQuery, state: FSMContext):
+    keyboard = await inline.show_budget_options(call)
     async with state.proxy() as data:
         data['currency'] = call.data
     currency_data = data.get('currency')
@@ -47,86 +48,154 @@ async def budget(call: types.CallbackQuery, state: FSMContext):
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
             text='Choose your budget\n(You can choose several answers)',
-            reply_markup=inline.budget_usd())
-        await Searching.next()
+            reply_markup=keyboard)
+
     elif currency_data == 'rupiah':
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
             text='Choose your budget\n(You can choose several answers)',
-            reply_markup=inline.budget_rupiah())
-        await Searching.next()
+            reply_markup=keyboard)
 
 
-async def budget_callback_changer(call: types.CallbackQuery, state: FSMContext):
+# async def save_options_budget(call: types.CallbackQuery, selected_options: list[str], state: FSMContext):
+#     await call.message.answer('Test')
+#     await state.update_data(selected_options=selected_options)
+#     await state.update_data({'selected_options': []})  # <-- добавить ключ 'selected_options'
+#     async with state.proxy() as data:
+#         data['budget'] = selected_options
+#     print(f'before: {data}')
+#     await Searching.next()
+#     print(f'after: {data}')
+#
+#     await state.reset_state(with_data=False)
+
+
+async def budget_handler(call: types.CallbackQuery, state: FSMContext):
+    await call.answer()
+    selected_option = call.data.replace("select_option:", "")
+    # Получаем идентификаторы сообщений
+    message_id = call.message.message_id
+    inline_message_id = call.inline_message_id
+    # Получаем текущую разметку клавиатуры
+    keyboard = call.message.reply_markup
+    # Обновляем текст кнопки, если она еще не была выбрана
+    for row in keyboard.inline_keyboard:
+        for button in row:
+            if button.callback_data == call.data:
+                if "✅" not in button.text:
+                    button.text = f"{selected_option} ✅"
+                    async with state.proxy() as data:
+                        selected_options = data.get('selected_options', [])
+                        selected_options.append(selected_option)
+                        await state.update_data(selected_options=selected_options)
+                elif "✅" in button.text:
+                    button.text = selected_option
+                    async with state.proxy() as data:
+                        selected_options = data.get('selected_options', [])
+                        selected_options.remove(selected_option)
+                        await state.update_data(selected_options=selected_options)
+
+    # Проверяем, что "Done" кнопка уже добавлена в разметку клавиатуры
+    done_button_added = False
+    for row in keyboard.inline_keyboard:
+        for button in row:
+            if button.callback_data == "done":
+                done_button_added = True
+    # Если "Done" кнопка еще не добавлена, то добавляем ее
+    if not done_button_added:
+        done_button = InlineKeyboardButton("Done", callback_data="done")
+        keyboard.add(done_button)
+    # Обновляем разметку клавиатуры, если кнопка не была помечена как "выбранная"
+    if selected_option not in call.message.text:
+        await call.bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=message_id,
+                                                 inline_message_id=inline_message_id, reply_markup=keyboard)
+    else:
+        await call.bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=message_id,
+                                                 inline_message_id=inline_message_id, reply_markup=keyboard)
+
+
+async def budget_done_handler(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
-        data['budget'] = call.data
-        budget_button = data.get('budget')
-        if budget_button == '650$':
-            kb = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton('✓<650$', callback_data='✓650$')],
-                [InlineKeyboardButton('650 - 1300$', callback_data='650_1300$')],
-                [InlineKeyboardButton('1300 - 1950$', callback_data='1300_1950$')],
-                [InlineKeyboardButton('1950 - 2600$', callback_data='1950_2600$')],
-                [InlineKeyboardButton('2600 - 3250$', callback_data='2600_3250$')],
-                [InlineKeyboardButton('>3250$', callback_data='3250$')],
-                [InlineKeyboardButton('Done', callback_data='done'),
-                 InlineKeyboardButton('Cancel', callback_data='cancel')]
-            ])
-            await call.bot.edit_message_text(
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-                text='Choose your budget\n(You can choose several answers)',
-                reply_markup=kb)
-        elif budget_button == '650_1300$':
-            kb = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton('<650$', callback_data='650$')],
-                [InlineKeyboardButton('✓650 - 1300$', callback_data='✓650_1300$')],
-                [InlineKeyboardButton('1300 - 1950$', callback_data='1300_1950$')],
-                [InlineKeyboardButton('1950 - 2600$', callback_data='1950_2600$')],
-                [InlineKeyboardButton('2600 - 3250$', callback_data='2600_3250$')],
-                [InlineKeyboardButton('>3250$', callback_data='3250$')],
-                [InlineKeyboardButton('Done', callback_data='done'),
-                 InlineKeyboardButton('Cancel', callback_data='cancel')]
-            ])
-            await call.bot.edit_message_text(
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-                text='Choose your budget\n(You can choose several answers)',
-                reply_markup=kb)
-        elif budget_button == '1300_1950$':
-            kb = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton('<650$', callback_data='650$')],
-                [InlineKeyboardButton('650 - 1300$', callback_data='650_1300$')],
-                [InlineKeyboardButton('✓1300 - 1950$', callback_data='✓1300_1950$')],
-                [InlineKeyboardButton('1950 - 2600$', callback_data='1950_2600$')],
-                [InlineKeyboardButton('2600 - 3250$', callback_data='2600_3250$')],
-                [InlineKeyboardButton('>3250$', callback_data='3250$')],
-                [InlineKeyboardButton('Done', callback_data='done'),
-                 InlineKeyboardButton('Cancel', callback_data='cancel')]
-            ])
-            await call.bot.edit_message_text(
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-                text='Choose your budget\n(You can choose several answers)',
-                reply_markup=kb)
-        elif budget_button == '1950_2600$':
-            kb = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton('<650$', callback_data='650$')],
-                [InlineKeyboardButton('650 - 1300$', callback_data='650_1300$')],
-                [InlineKeyboardButton('1300 - 1950$', callback_data='1300_1950$')],
-                [InlineKeyboardButton('✓1950 - 2600$', callback_data='✓1950_2600$')],
-                [InlineKeyboardButton('2600 - 3250$', callback_data='2600_3250$')],
-                [InlineKeyboardButton('>3250$', callback_data='3250$')],
-                [InlineKeyboardButton('Done', callback_data='done'),
-                 InlineKeyboardButton('Cancel', callback_data='cancel')]
-            ])
-            await call.bot.edit_message_text(
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-                text='Choose your budget\n(You can choose several answers)',
-                reply_markup=kb)
+        selected_options = data.get('selected_options', [])
+    if selected_options:
+        # сохраняем выбранные опции в состоянии
+        await state.update_data(selected_options=selected_options)
+        await state.update_data({'selected_options': []})  # <-- добавить ключ 'selected_options'
+        async with state.proxy() as data:
+            data['budget'] = selected_options
+        await call.bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text='Accommodation location:\n(You can choose several answers)',
+            reply_markup=inline.show_location_options())
         await Searching.next()
+    else:
+        await call.answer(text="No options selected", show_alert=True)
+
+
+async def location_handler(call: types.CallbackQuery, state: FSMContext):
+    await call.answer()
+    selected_option = call.data.replace("select_option:", "")
+    # Получаем идентификаторы сообщений
+    message_id = call.message.message_id
+    inline_message_id = call.inline_message_id
+    # Получаем текущую разметку клавиатуры
+    keyboard = call.message.reply_markup
+    # Обновляем текст кнопки, если она еще не была выбрана
+    for row in keyboard.inline_keyboard:
+        for button in row:
+            if button.callback_data == call.data:
+                if "✅" not in button.text:
+                    button.text = f"{selected_option} ✅"
+                    async with state.proxy() as data:
+                        selected_options = data.get('selected_options', [])
+                        selected_options.append(selected_option)
+                        await state.update_data(selected_options=selected_options)
+                elif "✅" in button.text:
+                    button.text = selected_option
+                    async with state.proxy() as data:
+                        selected_options = data.get('selected_options', [])
+                        selected_options.remove(selected_option)
+                        await state.update_data(selected_options=selected_options)
+
+    # Проверяем, что "Done" кнопка уже добавлена в разметку клавиатуры
+    done_button_added = False
+    for row in keyboard.inline_keyboard:
+        for button in row:
+            if button.callback_data == "done":
+                done_button_added = True
+    # Если "Done" кнопка еще не добавлена, то добавляем ее
+    if not done_button_added:
+        done_button = InlineKeyboardButton("Done", callback_data="done")
+        keyboard.add(done_button)
+    # Обновляем разметку клавиатуры, если кнопка не была помечена как "выбранная"
+    if selected_option not in call.message.text:
+        await call.bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=message_id,
+                                                 inline_message_id=inline_message_id, reply_markup=keyboard)
+    else:
+        await call.bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=message_id,
+                                                 inline_message_id=inline_message_id, reply_markup=keyboard)
+
+
+async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        selected_options = data.get('selected_options', [])
+    if selected_options:
+        # сохраняем выбранные опции в состоянии
+        await state.update_data(selected_options=selected_options)
+        await state.update_data({'selected_options': []})  # <-- добавить ключ 'selected_options'
+        async with state.proxy() as data:
+            data['location'] = selected_options
+            print(data)
+        await call.bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text="Accommodation type:\n(You can choose several answers)",
+            reply_markup=inline.show_accommodation_type_options())
+        await Searching.next()
+    else:
+        await call.answer(text="No options selected", show_alert=True)
 
 
 def register(dp: Dispatcher):

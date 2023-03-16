@@ -87,3 +87,81 @@ def kb_location() -> InlineKeyboardMarkup:
         kb.add(button)
     kb.add(button_cancel)
     return kb
+
+
+async def show_budget_options(call: types.CallbackQuery):
+    if call.data == 'usd':
+        options = ['less than 650$', '650 - 1300$', '1300 - 1950$',
+                   '1950 - 2600$', '2600 - 3250$', 'more than 3250$']
+        keyboard = InlineKeyboardMarkup()
+        for option in options:
+            button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
+            keyboard.add(button)
+        keyboard.add(InlineKeyboardButton("Done", callback_data="done"),
+                     InlineKeyboardButton("Cancel", callback_data="cancel"))
+        for row in keyboard.inline_keyboard:
+            for button in row:
+                if button.callback_data == "done":
+                    row.remove(button)
+            return keyboard
+    elif call.data == 'rupiah':
+        options = ["less than 10 mln", "10 mln - 20 mln", "20 mln - 30 mln",
+                   "30 mln - 40 mln", "40 mln - 50 mln", "more than 50 mln"]
+        keyboard = InlineKeyboardMarkup()
+        for option in options:
+            button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
+            keyboard.add(button)
+        keyboard.add(InlineKeyboardButton("Done", callback_data="done"),
+                     InlineKeyboardButton("Cancel", callback_data="cancel"))
+        for row in keyboard.inline_keyboard:
+            for button in row:
+                if button.callback_data == "done":
+                    row.remove(button)
+            return keyboard
+
+
+def show_location_options():
+    keyboard = InlineKeyboardMarkup()
+    locations = get_location()
+    for location in locations:
+        button = InlineKeyboardButton(location[0], callback_data=f"select_option:{location[0]}")
+        keyboard.add(button)
+    keyboard.add(InlineKeyboardButton("Done", callback_data="done"),
+                 InlineKeyboardButton("Cancel", callback_data="cancel"))
+    for row in keyboard.inline_keyboard:
+        for button in row:
+            if button.callback_data == "done":
+                row.remove(button)
+        return keyboard
+
+
+def show_accommodation_type_options():
+    options = ['Villa Entirely', 'Room in a shared villa', 'Apartments',
+               'Guesthouse']
+    keyboard = InlineKeyboardMarkup()
+    for option in options:
+        button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
+        keyboard.add(button)
+    keyboard.add(InlineKeyboardButton("Done", callback_data="done"),
+                 InlineKeyboardButton("Cancel", callback_data="cancel"))
+    for row in keyboard.inline_keyboard:
+        for button in row:
+            if button.callback_data == "done":
+                row.remove(button)
+        return keyboard
+
+
+def show_amenities_options():
+    options = ['Kitchen', 'AC', 'Private pool', 'Shared pool', 'Wi-Fi', 'Shower', 'Bathtub', 'Cleaning service', 'TV',
+               'Parking area']
+    keyboard = InlineKeyboardMarkup()
+    for option in options:
+        button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
+        keyboard.add(button)
+    keyboard.add(InlineKeyboardButton("Done", callback_data="done"),
+                 InlineKeyboardButton("Cancel", callback_data="cancel"))
+    for row in keyboard.inline_keyboard:
+        for button in row:
+            if button.callback_data == "done":
+                row.remove(button)
+        return keyboard
