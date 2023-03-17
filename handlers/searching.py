@@ -1,7 +1,10 @@
+import asyncio
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import InlineKeyboardButton
+from database.postgre_find import get_apart
 
 from keyboards import inline
 
@@ -13,6 +16,7 @@ class Searching(StatesGroup):
     location = State()
     accommodation_type = State()
     amenities = State()
+    searching = State()
 
 
 async def cmd_cancel(call: types.CallbackQuery, state: FSMContext):
@@ -277,9 +281,44 @@ async def amenities_done_handler(call: types.CallbackQuery, state: FSMContext):
                  f"<b>Accommodation type:</b> <em>{accommodation_type_str}</em>\n"
                  f"<b>Amenities:</b> <em>{amenities_str}</em>\n",
             reply_markup=inline.searching())
-        await state.finish()
+        await Searching.next()
     else:
         await call.answer(text="No amenities selected", show_alert=True)
+
+
+async def searching_finish(call: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        rental_period_str = data.get('rental_period')
+        currency_str = data.get('currency')
+        budget_str = ", ".join(data.get('budget'))
+        location_str = ", ".join(data.get('location'))
+        accommodation_type_str = ", ".join(data.get('accommodation_type'))
+        amenities_str = ", ".join(data.get('amenities'))
+
+    if call.data == 'get_started':
+        await state.finish()
+        await rental_period(call)
+    elif call.data == 'searching':
+        await call.bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text='Searching...')
+        await asyncio.sleep(3)
+        await call.message.delete()
+        await state.finish()
+        aps = get_apart(rental_period_str, currency_str, budget_str,
+                        location_str, accommodation_type_str, amenities_str)
+        print(aps)
+        if aps == "[]"
+        for ap in aps:
+            await call.message.answer(text=f'<b>Unique ID:</b> {ap[0]}\n'
+                                           f'<b>Type:</b> {ap[4]}\n'
+                                           f'<b>Location</b>: {ap[11]}\n'
+                                           f'<b>Amenities:</b> {ap[6]}\n'
+                                           f'<b>Rent period:</b> {ap[7]}\n'
+                                           f'<b>Price Rupee:</b> {ap[8]}\n'
+                                           f'<b>Price USD:</b> {ap[9]}\n'
+                                           f'<b>Description:</b> {ap[10]}')
 
 
 def register(dp: Dispatcher):
@@ -305,3 +344,4 @@ def register(dp: Dispatcher):
                                        state=Searching.amenities)
     dp.register_callback_query_handler(amenities_done_handler, lambda c: c.data == "done",
                                        state=Searching.amenities)
+    dp.register_callback_query_handler(searching_finish, state=Searching.searching)

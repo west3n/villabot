@@ -1,11 +1,14 @@
 import datetime
 
 from aiogram import Dispatcher, types
+from aiogram.dispatcher import FSMContext
+
 from database.postgre_user import status, update_activity
 from keyboards import inline
 
 
-async def bot_start(msg: types.Message):
+async def bot_start(msg: types.Message, state: FSMContext):
+    await state.finish()
     tg_id = int(msg.from_id)
     user = await status(tg_id)
     name = msg.from_user.first_name
