@@ -23,8 +23,11 @@ async def cmd_cancel(call: types.CallbackQuery, state: FSMContext):
 
 async def rental_period(call: types.CallbackQuery):
     await call.message.edit_reply_markup()
-    await call.message.answer("Please, answer the following questions about your future villa 🏠\n\n"
-                              "Rental period:", reply_markup=inline.rental_period())
+    await call.bot.edit_message_text(chat_id=call.message.chat.id,
+                                     message_id=call.message.message_id,
+                                     text="Please, answer the following questions about your future villa 🏠\n\n"
+                                          "Rental period:",
+                                     reply_markup=inline.rental_period())
     await Searching.rental_period.set()
 
 
@@ -39,24 +42,15 @@ async def currency(call: types.CallbackQuery, state: FSMContext):
 
 
 async def budget(call: types.CallbackQuery, state: FSMContext):
-    keyboard = await inline.show_budget_options(call)
+    keyboard = inline.show_budget_options(call)
     async with state.proxy() as data:
         data['currency'] = call.data
-    currency_data = data.get('currency')
-    if currency_data == 'usd':
-        await Searching.next()
-        await call.bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text='Choose your budget:\n(You can choose several answers)',
-            reply_markup=keyboard)
-    elif currency_data == 'rupiah':
-        await Searching.next()
-        await call.bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text='Choose your budget:\n(You can choose several answers)',
-            reply_markup=keyboard)
+    await Searching.next()
+    await call.bot.edit_message_text(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        text='Choose your budget:\n(You can choose several answers)',
+        reply_markup=keyboard)
 
 
 async def budget_handler(call: types.CallbackQuery, state: FSMContext):
@@ -281,7 +275,8 @@ async def amenities_done_handler(call: types.CallbackQuery, state: FSMContext):
                  f"<b>Budget:</b> <em>{budget_str}</em>\n"
                  f"<b>Locations:</b> <em>{location_str}</em>\n"
                  f"<b>Accommodation type:</b> <em>{accommodation_type_str}</em>\n"
-                 f"<b>Amenities:</b> <em>{amenities_str}</em>\n")
+                 f"<b>Amenities:</b> <em>{amenities_str}</em>\n",
+            reply_markup=inline.searching())
         await state.finish()
     else:
         await call.answer(text="No amenities selected", show_alert=True)

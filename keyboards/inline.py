@@ -61,7 +61,7 @@ def kb_location() -> InlineKeyboardMarkup:
     return kb
 
 
-async def show_budget_options(call: types.CallbackQuery):
+def show_budget_options(call: types.CallbackQuery) -> InlineKeyboardMarkup:
     if call.data == 'usd':
         options = ['less than 650$', '650 - 1300$', '1300 - 1950$',
                    '1950 - 2600$', '2600 - 3250$', 'more than 3250$']
@@ -92,7 +92,7 @@ async def show_budget_options(call: types.CallbackQuery):
             return keyboard
 
 
-def show_location_options():
+def show_location_options() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup()
     locations = get_location()
     for location in locations:
@@ -107,7 +107,7 @@ def show_location_options():
         return keyboard
 
 
-def show_accommodation_type_options():
+def show_accommodation_type_options() -> InlineKeyboardMarkup:
     options = ['Villa Entirely', 'Room in a shared villa', 'Apartments',
                'Guesthouse']
     keyboard = InlineKeyboardMarkup()
@@ -123,7 +123,7 @@ def show_accommodation_type_options():
         return keyboard
 
 
-def show_amenities_options():
+def show_amenities_options() -> InlineKeyboardMarkup:
     options = ['Kitchen', 'AC', 'Private pool', 'Shared pool', 'Wi-Fi', 'Shower', 'Bathtub', 'Cleaning service', 'TV',
                'Parking area']
     keyboard = InlineKeyboardMarkup()
@@ -137,3 +137,11 @@ def show_amenities_options():
             if button.callback_data == "done":
                 row.remove(button)
         return keyboard
+
+
+def searching() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton('Search', callback_data='searching')],
+        [InlineKeyboardButton('Start over', callback_data='get_started')]
+    ])
+    return kb
