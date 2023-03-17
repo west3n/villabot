@@ -309,7 +309,8 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
         aps = get_apart(rental_period_str, currency_str, budget_str,
                         location_str, accommodation_type_str, amenities_str)
         print(aps)
-        if aps == []:
+        if not aps:
+            a
         for ap in aps:
             await call.message.answer(text=f'<b>Unique ID:</b> {ap[0]}\n'
                                            f'<b>Type:</b> {ap[4]}\n'
