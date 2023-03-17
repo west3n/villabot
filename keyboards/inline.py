@@ -69,7 +69,7 @@ async def show_budget_options(call: types.CallbackQuery):
         for option in options:
             button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
             keyboard.add(button)
-        keyboard.add(InlineKeyboardButton("Done", callback_data="done"),
+        keyboard.add(InlineKeyboardButton("Next", callback_data="done"),
                      InlineKeyboardButton("Cancel", callback_data="cancel"))
         for row in keyboard.inline_keyboard:
             for button in row:
@@ -83,7 +83,7 @@ async def show_budget_options(call: types.CallbackQuery):
         for option in options:
             button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
             keyboard.add(button)
-        keyboard.add(InlineKeyboardButton("Done", callback_data="done"),
+        keyboard.add(InlineKeyboardButton("Next", callback_data="done"),
                      InlineKeyboardButton("Cancel", callback_data="cancel"))
         for row in keyboard.inline_keyboard:
             for button in row:
@@ -98,7 +98,7 @@ def show_location_options():
     for location in locations:
         button = InlineKeyboardButton(location[0], callback_data=f"select_option:{location[0]}")
         keyboard.add(button)
-    keyboard.add(InlineKeyboardButton("Done", callback_data="done"),
+    keyboard.add(InlineKeyboardButton("Next", callback_data="done"),
                  InlineKeyboardButton("Cancel", callback_data="cancel"))
     for row in keyboard.inline_keyboard:
         for button in row:
@@ -114,7 +114,7 @@ def show_accommodation_type_options():
     for option in options:
         button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
         keyboard.add(button)
-    keyboard.add(InlineKeyboardButton("Done", callback_data="done"),
+    keyboard.add(InlineKeyboardButton("Next", callback_data="done"),
                  InlineKeyboardButton("Cancel", callback_data="cancel"))
     for row in keyboard.inline_keyboard:
         for button in row:
@@ -130,7 +130,7 @@ def show_amenities_options():
     for option in options:
         button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
         keyboard.add(button)
-    keyboard.add(InlineKeyboardButton("Done", callback_data="done"),
+    keyboard.add(InlineKeyboardButton("Next", callback_data="done"),
                  InlineKeyboardButton("Cancel", callback_data="cancel"))
     for row in keyboard.inline_keyboard:
         for button in row:

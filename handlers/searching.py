@@ -48,40 +48,23 @@ async def budget(call: types.CallbackQuery, state: FSMContext):
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text='Choose your budget\n(You can choose several answers)',
+            text='Choose your budget:\n(You can choose several answers)',
             reply_markup=keyboard)
-
     elif currency_data == 'rupiah':
         await Searching.next()
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text='Choose your budget\n(You can choose several answers)',
+            text='Choose your budget:\n(You can choose several answers)',
             reply_markup=keyboard)
-
-
-# async def save_options_budget(call: types.CallbackQuery, selected_options: list[str], state: FSMContext):
-#     await call.message.answer('Test')
-#     await state.update_data(selected_options=selected_options)
-#     await state.update_data({'selected_options': []})  # <-- добавить ключ 'selected_options'
-#     async with state.proxy() as data:
-#         data['budget'] = selected_options
-#     print(f'before: {data}')
-#     await Searching.next()
-#     print(f'after: {data}')
-#
-#     await state.reset_state(with_data=False)
 
 
 async def budget_handler(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     selected_option = call.data.replace("select_option:", "")
-    # Получаем идентификаторы сообщений
     message_id = call.message.message_id
     inline_message_id = call.inline_message_id
-    # Получаем текущую разметку клавиатуры
     keyboard = call.message.reply_markup
-    # Обновляем текст кнопки, если она еще не была выбрана
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == call.data:
@@ -97,18 +80,14 @@ async def budget_handler(call: types.CallbackQuery, state: FSMContext):
                         selected_options = data.get('selected_options', [])
                         selected_options.remove(selected_option)
                         await state.update_data(selected_options=selected_options)
-
-    # Проверяем, что "Done" кнопка уже добавлена в разметку клавиатуры
     done_button_added = False
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == "done":
                 done_button_added = True
-    # Если "Done" кнопка еще не добавлена, то добавляем ее
     if not done_button_added:
-        done_button = InlineKeyboardButton("Done", callback_data="done")
+        done_button = InlineKeyboardButton("Next", callback_data="done")
         keyboard.add(done_button)
-    # Обновляем разметку клавиатуры, если кнопка не была помечена как "выбранная"
     if selected_option not in call.message.text:
         await call.bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=message_id,
                                                  inline_message_id=inline_message_id, reply_markup=keyboard)
@@ -121,9 +100,8 @@ async def budget_done_handler(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         selected_options = data.get('selected_options', [])
     if selected_options:
-        # сохраняем выбранные опции в состоянии
         await state.update_data(selected_options=selected_options)
-        await state.update_data({'selected_options': []})  # <-- добавить ключ 'selected_options'
+        await state.update_data({'selected_options': []})
         async with state.proxy() as data:
             data['budget'] = selected_options
         await call.bot.edit_message_text(
@@ -133,18 +111,15 @@ async def budget_done_handler(call: types.CallbackQuery, state: FSMContext):
             reply_markup=inline.show_location_options())
         await Searching.next()
     else:
-        await call.answer(text="No options selected", show_alert=True)
+        await call.answer(text="No budget selected", show_alert=True)
 
 
 async def location_handler(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     selected_option = call.data.replace("select_option:", "")
-    # Получаем идентификаторы сообщений
     message_id = call.message.message_id
     inline_message_id = call.inline_message_id
-    # Получаем текущую разметку клавиатуры
     keyboard = call.message.reply_markup
-    # Обновляем текст кнопки, если она еще не была выбрана
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == call.data:
@@ -160,18 +135,14 @@ async def location_handler(call: types.CallbackQuery, state: FSMContext):
                         selected_options = data.get('selected_options', [])
                         selected_options.remove(selected_option)
                         await state.update_data(selected_options=selected_options)
-
-    # Проверяем, что "Done" кнопка уже добавлена в разметку клавиатуры
     done_button_added = False
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == "done":
                 done_button_added = True
-    # Если "Done" кнопка еще не добавлена, то добавляем ее
     if not done_button_added:
-        done_button = InlineKeyboardButton("Done", callback_data="done")
+        done_button = InlineKeyboardButton("Next", callback_data="done")
         keyboard.add(done_button)
-    # Обновляем разметку клавиатуры, если кнопка не была помечена как "выбранная"
     if selected_option not in call.message.text:
         await call.bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=message_id,
                                                  inline_message_id=inline_message_id, reply_markup=keyboard)
@@ -184,12 +155,10 @@ async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         selected_options = data.get('selected_options', [])
     if selected_options:
-        # сохраняем выбранные опции в состоянии
         await state.update_data(selected_options=selected_options)
-        await state.update_data({'selected_options': []})  # <-- добавить ключ 'selected_options'
+        await state.update_data({'selected_options': []})
         async with state.proxy() as data:
             data['location'] = selected_options
-            print(data)
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
@@ -197,18 +166,15 @@ async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
             reply_markup=inline.show_accommodation_type_options())
         await Searching.next()
     else:
-        await call.answer(text="No options selected", show_alert=True)
+        await call.answer(text="No location selected", show_alert=True)
 
 
 async def accommodation_type_handler(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     selected_option = call.data.replace("select_option:", "")
-    # Получаем идентификаторы сообщений
     message_id = call.message.message_id
     inline_message_id = call.inline_message_id
-    # Получаем текущую разметку клавиатуры
     keyboard = call.message.reply_markup
-    # Обновляем текст кнопки, если она еще не была выбрана
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == call.data:
@@ -224,18 +190,14 @@ async def accommodation_type_handler(call: types.CallbackQuery, state: FSMContex
                         selected_options = data.get('selected_options', [])
                         selected_options.remove(selected_option)
                         await state.update_data(selected_options=selected_options)
-
-    # Проверяем, что "Done" кнопка уже добавлена в разметку клавиатуры
     done_button_added = False
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == "done":
                 done_button_added = True
-    # Если "Done" кнопка еще не добавлена, то добавляем ее
     if not done_button_added:
-        done_button = InlineKeyboardButton("Done", callback_data="done")
+        done_button = InlineKeyboardButton("Next", callback_data="done")
         keyboard.add(done_button)
-    # Обновляем разметку клавиатуры, если кнопка не была помечена как "выбранная"
     if selected_option not in call.message.text:
         await call.bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=message_id,
                                                  inline_message_id=inline_message_id, reply_markup=keyboard)
@@ -248,12 +210,10 @@ async def accommodation_type_done_handler(call: types.CallbackQuery, state: FSMC
     async with state.proxy() as data:
         selected_options = data.get('selected_options', [])
     if selected_options:
-        # сохраняем выбранные опции в состоянии
         await state.update_data(selected_options=selected_options)
-        await state.update_data({'selected_options': []})  # <-- добавить ключ 'selected_options'
+        await state.update_data({'selected_options': []})
         async with state.proxy() as data:
             data['accommodation_type'] = selected_options
-            print(data)
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
@@ -261,18 +221,15 @@ async def accommodation_type_done_handler(call: types.CallbackQuery, state: FSMC
             reply_markup=inline.show_amenities_options())
         await Searching.next()
     else:
-        await call.answer(text="No options selected", show_alert=True)
+        await call.answer(text="No accommodation type selected", show_alert=True)
 
 
 async def amenities_handler(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     selected_option = call.data.replace("select_option:", "")
-    # Получаем идентификаторы сообщений
     message_id = call.message.message_id
     inline_message_id = call.inline_message_id
-    # Получаем текущую разметку клавиатуры
     keyboard = call.message.reply_markup
-    # Обновляем текст кнопки, если она еще не была выбрана
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == call.data:
@@ -288,18 +245,14 @@ async def amenities_handler(call: types.CallbackQuery, state: FSMContext):
                         selected_options = data.get('selected_options', [])
                         selected_options.remove(selected_option)
                         await state.update_data(selected_options=selected_options)
-
-    # Проверяем, что "Done" кнопка уже добавлена в разметку клавиатуры
     done_button_added = False
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == "done":
                 done_button_added = True
-    # Если "Done" кнопка еще не добавлена, то добавляем ее
     if not done_button_added:
-        done_button = InlineKeyboardButton("Done", callback_data="done")
+        done_button = InlineKeyboardButton("Next", callback_data="done")
         keyboard.add(done_button)
-    # Обновляем разметку клавиатуры, если кнопка не была помечена как "выбранная"
     if selected_option not in call.message.text:
         await call.bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=message_id,
                                                  inline_message_id=inline_message_id, reply_markup=keyboard)
@@ -312,12 +265,10 @@ async def amenities_done_handler(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         selected_options = data.get('selected_options', [])
     if selected_options:
-        # сохраняем выбранные опции в состоянии
         await state.update_data(selected_options=selected_options)
-        await state.update_data({'selected_options': []})  # <-- добавить ключ 'selected_options'
+        await state.update_data({'selected_options': []})
         async with state.proxy() as data:
             data['amenities'] = selected_options
-            print(data)
         budget_str = ", ".join(data.get('budget'))
         location_str = ", ".join(data.get('location'))
         accommodation_type_str = ", ".join(data.get('accommodation_type'))
@@ -333,7 +284,7 @@ async def amenities_done_handler(call: types.CallbackQuery, state: FSMContext):
                  f"<b>Amenities:</b> <em>{amenities_str}</em>\n")
         await state.finish()
     else:
-        await call.answer(text="No options selected", show_alert=True)
+        await call.answer(text="No amenities selected", show_alert=True)
 
 
 def register(dp: Dispatcher):
