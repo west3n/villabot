@@ -13,8 +13,8 @@ async def status(tg_id: int):
 async def add_user(username, tg_id, start_register, last_activity, data, last_name):
     cur.execute(
         "INSERT INTO appart_rentuser (first_name, last_name, username, tg_id, "
-        "register, last_activity, default_lang, phone) "
-        "VALUES(%s, %s, %s, %s, %s, %s, %s, %s)",
+        "register, last_activity, default_lang, phone, subscribe) "
+        "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, false)",
         (data.get('first_name'), last_name, username, tg_id, start_register,
          last_activity, data.get('lang'), data.get('contact'),))
     db.commit()

@@ -57,6 +57,12 @@ def get_location_id(location_str):
     return [int(x[0]) for x in result]
 
 
+def get_location_name(location_id):
+    cur.execute(f"SELECT name FROM appart_location WHERE id=%s", (location_id,))
+    result = cur.fetchone()
+    return result
+
+
 def get_apart(rental_period_str, currency_str, budget_str, location_str, accommodation_type_str, amenities_str):
     budget = check_budget(currency_str, budget_str)
     aps_type = type_check(accommodation_type_str)
