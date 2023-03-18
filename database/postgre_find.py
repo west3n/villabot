@@ -98,7 +98,7 @@ def get_apart(rental_period_str, currency_str, budget_str, location_str, accommo
         )
         aps = cur.fetchall()
         matching_aps = []
-        for n in range(0, count):
+        for n in range(0, count + 1):
             compare = all(element in aps[n][6].split(",") for element in amenities)
             print(compare)
             if compare:

@@ -5,7 +5,7 @@ from decouple import config
 from handlers.commands import register as reg_commands
 from handlers.registration import register as reg_registr
 from handlers.searching import register as reg_searching
-
+from handlers.subscription import register as reg_subscription
 bot_token = config("BOT_TOKEN")
 logger = logging.getLogger(__name__)
 
@@ -20,3 +20,4 @@ def register_handlers(dp):
     reg_commands(dp)
     reg_registr(dp)
     reg_searching(dp)
+    reg_subscription(dp)

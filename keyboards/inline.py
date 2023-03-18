@@ -145,3 +145,32 @@ def searching() -> InlineKeyboardMarkup:
         [InlineKeyboardButton('Start over', callback_data='get_started')]
     ])
     return kb
+
+
+def apartment_contacts(ap) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton('See contacts', callback_data=f'contact_{ap[0]}'),
+         InlineKeyboardButton('Save to favourites', callback_data=f'save_{ap[0]}')]
+    ])
+    return kb
+
+
+def contacts(ap) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton('See contacts', callback_data=f'contact_{ap[0]}')]
+    ])
+    return kb
+
+
+def favorites(ap) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton('Save to favourites', callback_data=f'save_{ap[0]}')]
+    ])
+    return kb
+
+
+def subscribe() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton('Take subscription for one month', callback_data='subscription_on')]
+    ])
+    return kb

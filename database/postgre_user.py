@@ -23,3 +23,14 @@ async def add_user(username, tg_id, start_register, last_activity, data, last_na
 async def update_activity(last_activity, tg_id):
     cur.execute("UPDATE appart_rentuser SET last_activity=%s WHERE tg_id=%s", (last_activity, tg_id,))
     db.commit()
+
+
+async def check_subscribe_status(tg_id):
+    cur.execute("SELECT subscribe FROM appart_rentuser WHERE tg_id=%s", (tg_id,))
+    result = cur.fetchone()
+    return result
+
+
+async def subscribe_activity(tg_id):
+    cur.execute("UPDATE appart_rentuser SET subscribe=true WHERE tg_id=%s", (tg_id,))
+    db.commit()
