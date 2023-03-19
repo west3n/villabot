@@ -51,9 +51,12 @@ async def turn_on_subscription(call: types.CallbackQuery):
 
 
 def register(dp: Dispatcher):
-    cur.execute("SELECT * FROM appart_apartment")
-    count = len(cur.fetchall())
-    for n in range(0, count + 1):
-        dp.register_callback_query_handler(apartment_contacts, text=f'contact_{n}')
-        dp.register_callback_query_handler(save_to_favorites, text=f"save_{n}")
-        dp.register_callback_query_handler(turn_on_subscription, text='subscription_on')
+    try:
+        cur.execute("SELECT id FROM appart_apartment")
+        count = cur.fetchone()[0]
+        for n in range(0, int(count) + 10):
+            dp.register_callback_query_handler(apartment_contacts, text=f'contact_{n}')
+            dp.register_callback_query_handler(save_to_favorites, text=f"save_{n}")
+            dp.register_callback_query_handler(turn_on_subscription, text='subscription_on')
+    except TypeError as e:
+        print(f'Error in register function: {e}')

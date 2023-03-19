@@ -104,3 +104,13 @@ def get_apart(rental_period_str, currency_str, budget_str, location_str, accommo
             if compare:
                 matching_aps.append(aps[n])
         return matching_aps
+
+
+def get_image(unique_id):
+    cur.execute("SELECT image_id FROM appart_apartment_images WHERE apartment_id=%s", (unique_id,))
+    images = cur.fetchall()
+    image_link = []
+    for image in images:
+        cur.execute("SELECT image FROM appart_image WHERE id=%s", (image,))
+        image_link.append(cur.fetchone()[0]),
+    return image_link
