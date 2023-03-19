@@ -1,4 +1,7 @@
 import asyncio
+import locale
+import os
+import io
 
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
@@ -286,6 +289,22 @@ async def amenities_done_handler(call: types.CallbackQuery, state: FSMContext):
         await call.answer(text="No amenities selected", show_alert=True)
 
 
+def format_number(num: float):
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    if num >= 10 ** 9:
+        result = f"{locale.format_string('%.1f', num / 10 ** 9, grouping=True).rstrip('0').rstrip('.')} billion rupiah"
+        return result.replace(', ', ' ')
+    elif num >= 10 ** 6:
+        result = f"{locale.format_string('%.1f', num / 10 ** 6, grouping=True).rstrip('0').rstrip('.')} million rupiah"
+        return result.replace(', ', ' ')
+    elif num >= 10 ** 3:
+        result = f"{locale.format_string('%.1f', num / 10 ** 3, grouping=True).rstrip('0').rstrip('.')} thousand rupiah"
+        return result.replace(', ', ' ')
+    else:
+        result = f"{locale.format_string('%.0f', num, grouping=True)} rupiah"
+        return result.replace(', ', ' ')
+
+
 async def searching_finish(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         rental_period_str = data.get('rental_period')
@@ -294,7 +313,6 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
         location_str = ", ".join(data.get('location'))
         accommodation_type_str = ", ".join(data.get('accommodation_type'))
         amenities_str = ", ".join(data.get('amenities'))
-
     if call.data == 'get_started':
         await state.finish()
         await rental_period(call)
@@ -308,7 +326,6 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
         await state.finish()
         aps = get_apart(rental_period_str, currency_str, budget_str,
                         location_str, accommodation_type_str, amenities_str)
-        print(aps)
         if not aps:
             await call.message.answer(text='Nothing found.')
         for ap in aps:
