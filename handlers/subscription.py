@@ -34,13 +34,13 @@ async def save_to_favorites(call: types.CallbackQuery):
         user_id = await status(tg_id)
         cur.execute("INSERT INTO appart_saveaps (apart_id, user_id) VALUES (%s, %s)", (id_data, user_id,))
         db.commit()
-        await call.message.answer(f"Unique ID: {id_data} apartment saved to favorite!")
+        await call.answer(f"Apartment saved to favorite!")
     except UniqueViolation:
         db.rollback()
-        await call.message.answer(f"Unique ID: {id_data} apartment already in your favorites!")
+        await call.answer(f"Apartment already in your favorites!")
     except InFailedSqlTransaction:
         db.rollback()
-        await call.message.answer(f"Unique ID: {id_data} apartment already in your favorites!")
+        await call.answer(f"Apartment already in your favorites!")
 
 
 async def turn_on_subscription(call: types.CallbackQuery):

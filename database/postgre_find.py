@@ -73,8 +73,9 @@ def get_apart(rental_period_str, currency_str, budget_str, location_str, accommo
     location_hold = ','.join(['%s'] * len(location_id))
     amenities = amenities_str.split(',')
     amenities = [amenity.strip() for amenity in amenities]
-    cur.execute("SELECT * FROM appart_apartment")
+    cur.execute("SELECT id FROM appart_apartment")
     count = len(cur.fetchall())
+    print(count)
     if currency_str == 'usd':
         cur.execute(
             f"SELECT * FROM appart_apartment WHERE rent_term=%s "
@@ -98,7 +99,7 @@ def get_apart(rental_period_str, currency_str, budget_str, location_str, accommo
         )
         aps = cur.fetchall()
         matching_aps = []
-        for n in range(0, count + 1):
+        for n in range(0, count):
             compare = all(element in aps[n][6].split(",") for element in amenities)
             print(compare)
             if compare:

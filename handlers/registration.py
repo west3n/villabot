@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from keyboards.inline import language
 from keyboards.reply import cancel, remove, contact
-from database.postgre_user import add_user
+from database.postgre_user import add_user, status, update_user
 import datetime
 
 
@@ -48,9 +48,15 @@ async def registration_finish(call: types.CallbackQuery, state: FSMContext):
     tg_id = int(call.from_user.id)
     start_register = datetime.datetime.now()
     last_activity = start_register
-    await add_user(username, tg_id, start_register, last_activity, data, last_name)
-    await state.finish()
-    await call.message.answer(f'Registration complete!', reply_markup=remove)
+    stat = await status(tg_id)
+    if stat:
+        await state.finish()
+        await call.message.answer(f'Update profile complete! Please, press command /start', reply_markup=remove)
+        await update_user(username, tg_id, start_register, last_activity, data, last_name)
+    else:
+        await add_user(username, tg_id, start_register, last_activity, data, last_name)
+        await state.finish()
+        await call.message.answer(f'Registration complete! Please, press command /start', reply_markup=remove)
 
 
 async def cmd_cancel(msg: types.Message, state: FSMContext):

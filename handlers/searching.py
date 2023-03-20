@@ -326,6 +326,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
         await state.finish()
         aps = get_apart(rental_period_str, currency_str, budget_str,
                         location_str, accommodation_type_str, amenities_str)
+        print(aps)
         if not aps:
             await call.message.answer(text='Nothing found.')
         for ap in aps:
@@ -365,7 +366,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
                                              f'<b>Amenities:</b> {ap[6]}\n' 
                                              f'<b>Rent period:</b> {ap[7]}\n' 
                                              f'<b>Price Rupee:</b> {format_number(ap[8])}\n'
-                                             f'<b>Price USD:</b> {ap[9]}\n' 
+                                             f'<b>Price USD:</b> {ap[9]}$\n' 
                                              f'<b>Description:</b> {ap[10]}',
                                         reply_to_message_id=text_message[0].message_id,
                                         reply_markup=inline.apartment_contacts(str(ap[0])))

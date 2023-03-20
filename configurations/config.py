@@ -6,6 +6,9 @@ from handlers.commands import register as reg_commands
 from handlers.registration import register as reg_registr
 from handlers.searching import register as reg_searching
 from handlers.subscription import register as reg_subscription
+from handlers.favorite import register as reg_favorite
+
+
 bot_token = config("BOT_TOKEN")
 logger = logging.getLogger(__name__)
 
@@ -21,3 +24,4 @@ def register_handlers(dp):
     reg_registr(dp)
     reg_searching(dp)
     reg_subscription(dp)
+    reg_favorite(dp)

@@ -26,7 +26,9 @@ def language() -> InlineKeyboardMarkup:
 
 def get_started() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton('Get started', callback_data='get_started')]
+        [InlineKeyboardButton('Find apartments', callback_data='get_started')],
+        [InlineKeyboardButton('Show favorites', callback_data='show_favorite')],
+        [InlineKeyboardButton('Edit profile', callback_data='register')]
     ])
     return kb
 
