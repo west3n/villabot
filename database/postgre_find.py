@@ -42,7 +42,7 @@ def type_check(accommodation_type_str):
     if 'Room in shared villa' in accommodation_type_str:
         accommodation_type_str = accommodation_type_str.replace('Room in shared villa', 'RO')
     if 'Apartment' in accommodation_type_str:
-        accommodation_type_str = accommodation_type_str.replace('Apartment', 'AP')
+        accommodation_type_str = accommodation_type_str.replace('Apartments', 'AP')
     if 'Guesthouse' in accommodation_type_str:
         accommodation_type_str = accommodation_type_str.replace('Guesthouse', 'GH')
     return accommodation_type_str
@@ -53,6 +53,12 @@ def get_location_id(location_str):
     locations = [loc.strip() for loc in locations]
     placeholders = ','.join(['%s'] * len(locations))
     cur.execute(f"SELECT id FROM appart_location WHERE name IN ({placeholders})", tuple(locations))
+    result = cur.fetchall()
+    return [int(x[0]) for x in result]
+
+
+def get_all_locations():
+    cur.execute("SELECT id FROM appart_location")
     result = cur.fetchall()
     return [int(x[0]) for x in result]
 

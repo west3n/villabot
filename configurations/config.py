@@ -7,6 +7,7 @@ from handlers.registration import register as reg_registr
 from handlers.searching import register as reg_searching
 from handlers.subscription import register as reg_subscription
 from handlers.favorite import register as reg_favorite
+from handlers.feedback import register as reg_feedback
 
 
 bot_token = config("BOT_TOKEN")
@@ -25,3 +26,4 @@ def register_handlers(dp):
     reg_searching(dp)
     reg_subscription(dp)
     reg_favorite(dp)
+    reg_feedback(dp)

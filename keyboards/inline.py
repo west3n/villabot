@@ -28,7 +28,8 @@ def get_started() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton('Find apartments', callback_data='get_started')],
         [InlineKeyboardButton('Show favorites', callback_data='show_favorite')],
-        [InlineKeyboardButton('Edit profile', callback_data='register')]
+        [InlineKeyboardButton('Edit profile', callback_data='register')],
+        [InlineKeyboardButton('Send feedback', callback_data='feedback')]
     ])
     return kb
 
@@ -174,5 +175,16 @@ def favorites(ap) -> InlineKeyboardMarkup:
 def subscribe() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton('Take subscription for one month', callback_data='subscription_on')]
+    ])
+    return kb
+
+
+def feedback() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton('Problems with the bot', callback_data='Problems with the bot')],
+        [InlineKeyboardButton('False information in offers', callback_data='False information in offers')],
+        [InlineKeyboardButton('Communication with the owner of the ad',
+                              callback_data='Communication with the owner of the ad')],
+        [InlineKeyboardButton('Other', callback_data='Other')]
     ])
     return kb

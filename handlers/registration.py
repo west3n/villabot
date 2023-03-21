@@ -23,16 +23,35 @@ async def registration_step_1(call: types.CallbackQuery):
 async def registration_step_3(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['first_name'] = msg.text
-    await msg.answer(f'Please send your contact', reply_markup=contact())
+    await msg.answer(f'Please send your contact or write your phone number', reply_markup=contact())
     await Registration.next()
 
 
 async def registration_step_4(msg: types.Message, state: FSMContext):
+    text = msg.text
     async with state.proxy() as data:
-        data['contact'] = msg.contact.phone_number
-    await msg.answer(f'Choose a language for the bot.',
-                     reply_markup=language())
-    await Registration.next()
+        if text is None:
+            data['contact'] = msg.contact.phone_number
+            await msg.answer(f'Choose a language for the bot.',
+                             reply_markup=language())
+            await Registration.next()
+        elif text.startswith("+"):
+            text = text.replace("+", "")
+            if text.isdigit():
+                data['contact'] = msg.text
+                await msg.answer(f'Choose a language for the bot.',
+                                 reply_markup=language())
+                await Registration.next()
+            else:
+                await msg.answer('Wrong data, try again')
+        elif text.isdigit():
+            data['contact'] = msg.text
+            await msg.answer(f'Choose a language for the bot.',
+                             reply_markup=language())
+            await Registration.next()
+        else:
+            await msg.answer('Wrong data, try again')
+
 
 
 async def registration_finish(call: types.CallbackQuery, state: FSMContext):
