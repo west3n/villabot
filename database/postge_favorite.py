@@ -1,6 +1,5 @@
-from database.postgre import cur, db
+from database.postgre import cur
 from database.postgre_user import status
-import asyncio
 
 
 async def get_favorite(tg_id):

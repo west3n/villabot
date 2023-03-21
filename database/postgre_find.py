@@ -3,44 +3,48 @@ import re
 
 
 def check_budget(currency_str, budget_str):
-    if currency_str == 'usd':
-        if 'less than 650$' in budget_str:
-            budget_str = budget_str.replace('less than 650$', '0 - 650$')
-        if 'more than 3250$' in budget_str:
-            budget_str = budget_str.replace('more than 3250$', '3250 - 1000000$')
-        s = budget_str
-        budget = re.findall(r'\d+', s)
-        budget = [int(n) for n in budget]
-        min_budget = min(budget)
-        max_budget = max(budget)
-        return min_budget, max_budget
-
-    elif currency_str == 'rupiah':
-        if 'less than 10 mln' in budget_str:
-            budget_str = budget_str.replace('less than 10 mln', '0 - 10000000')
-        if '10 mln - 20 mln' in budget_str:
-            budget_str = budget_str.replace('10 mln - 20 mln', '10000000 - 20000000')
-        if '20 mln - 30 mln' in budget_str:
-            budget_str = budget_str.replace('20 mln - 30 mln', '20000000 - 30000000')
-        if '30 mln - 40 mln' in budget_str:
-            budget_str = budget_str.replace('30 mln - 40 mln', '30000000 - 40000000')
-        if '40 mln - 50 mln' in budget_str:
-            budget_str = budget_str.replace('40 mln - 50 mln', '40000000 - 50000000')
-        if 'more than 50 mln' in budget_str:
-            budget_str = budget_str.replace('more than 50 mln', '50000000 - 1000000000')
-        s = budget_str
-        budget = re.findall(r'\d+', s)
-        budget = [int(n) for n in budget]
-        min_budget = min(budget)
-        max_budget = max(budget)
+    try:
+        if currency_str == 'usd':
+            if 'less than 650$' in budget_str:
+                budget_str = budget_str.replace('less than 650$', '0 - 650$')
+            if 'more than 3250$' in budget_str:
+                budget_str = budget_str.replace('more than 3250$', '3250 - 1000000$')
+            s = budget_str
+            budget = re.findall(r'\d+', s)
+            budget = [int(n) for n in budget]
+            min_budget = min(budget)
+            max_budget = max(budget)
+            return min_budget, max_budget
+        elif currency_str == 'rupiah':
+            if 'less than 10 mln' in budget_str:
+                budget_str = budget_str.replace('less than 10 mln', '0 - 10000000')
+            if '10 mln - 20 mln' in budget_str:
+                budget_str = budget_str.replace('10 mln - 20 mln', '10000000 - 20000000')
+            if '20 mln - 30 mln' in budget_str:
+                budget_str = budget_str.replace('20 mln - 30 mln', '20000000 - 30000000')
+            if '30 mln - 40 mln' in budget_str:
+                budget_str = budget_str.replace('30 mln - 40 mln', '30000000 - 40000000')
+            if '40 mln - 50 mln' in budget_str:
+                budget_str = budget_str.replace('40 mln - 50 mln', '40000000 - 50000000')
+            if 'more than 50 mln' in budget_str:
+                budget_str = budget_str.replace('more than 50 mln', '50000000 - 1000000000')
+            s = budget_str
+            budget = re.findall(r'\d+', s)
+            budget = [int(n) for n in budget]
+            min_budget = min(budget)
+            max_budget = max(budget)
+            return min_budget, max_budget
+    except ValueError:
+        min_budget = 0
+        max_budget = 1000000000000
         return min_budget, max_budget
 
 
 def type_check(accommodation_type_str):
     if 'Villa Entirely' in accommodation_type_str:
         accommodation_type_str = accommodation_type_str.replace('Villa Entirely', 'VI')
-    if 'Room in shared villa' in accommodation_type_str:
-        accommodation_type_str = accommodation_type_str.replace('Room in shared villa', 'RO')
+    if 'Room in a shared villa' in accommodation_type_str:
+        accommodation_type_str = accommodation_type_str.replace('Room in a shared villa', 'RO')
     if 'Apartment' in accommodation_type_str:
         accommodation_type_str = accommodation_type_str.replace('Apartments', 'AP')
     if 'Guesthouse' in accommodation_type_str:
@@ -81,7 +85,12 @@ def get_apart(rental_period_str, currency_str, budget_str, location_str, accommo
     amenities = [amenity.strip() for amenity in amenities]
     cur.execute("SELECT id FROM appart_apartment")
     count = len(cur.fetchall())
-    print(count)
+    if aps_type == ['']:
+        aps_type = ["VI", "RO", "AP", "GH"]
+        aps_hold = ','.join(['%s'] * len(aps_type))
+    if not location_id:
+        location_id = get_all_locations()
+        location_hold = ','.join(['%s'] * len(location_id))
     if currency_str == 'usd':
         cur.execute(
             f"SELECT * FROM appart_apartment WHERE rent_term=%s "
@@ -107,7 +116,6 @@ def get_apart(rental_period_str, currency_str, budget_str, location_str, accommo
         matching_aps = []
         for n in range(0, count):
             compare = all(element in aps[n][6].split(",") for element in amenities)
-            print(compare)
             if compare:
                 matching_aps.append(aps[n])
         return matching_aps

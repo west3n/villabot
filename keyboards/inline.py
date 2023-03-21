@@ -39,7 +39,8 @@ def rental_period() -> InlineKeyboardMarkup:
         [InlineKeyboardButton('Daily', callback_data='DAY')],
         [InlineKeyboardButton('Monthly', callback_data='MONTH')],
         [InlineKeyboardButton('Yearly', callback_data='YEAR')],
-        [InlineKeyboardButton('Cancel', callback_data='cancel')]
+        [InlineKeyboardButton('Back', callback_data='back'),
+         InlineKeyboardButton('Cancel', callback_data='cancel')]
     ])
     return kb
 
@@ -48,7 +49,8 @@ def currency() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton('USD', callback_data='usd')],
         [InlineKeyboardButton('Rupiah', callback_data='rupiah')],
-        [InlineKeyboardButton('Cancel', callback_data='cancel')]
+        [InlineKeyboardButton('Back', callback_data='back'),
+         InlineKeyboardButton('Cancel', callback_data='cancel')]
     ])
     return kb
 
@@ -72,22 +74,57 @@ def show_budget_options(call: types.CallbackQuery) -> InlineKeyboardMarkup:
         for option in options:
             button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
             keyboard.add(button)
-        keyboard.add(InlineKeyboardButton("Next", callback_data="done"),
-                     InlineKeyboardButton("Cancel", callback_data="cancel"))
+        keyboard.add(InlineKeyboardButton("Back", callback_data='back'),
+                     InlineKeyboardButton("Next", callback_data="done"))
+        keyboard.add(InlineKeyboardButton("Cancel", callback_data="cancel"))
         for row in keyboard.inline_keyboard:
             for button in row:
                 if button.callback_data == "done":
                     row.remove(button)
             return keyboard
-    elif call.data == 'rupiah':
+    elif call.data or call == 'rupiah':
         options = ["less than 10 mln", "10 mln - 20 mln", "20 mln - 30 mln",
                    "30 mln - 40 mln", "40 mln - 50 mln", "more than 50 mln"]
         keyboard = InlineKeyboardMarkup()
         for option in options:
             button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
             keyboard.add(button)
-        keyboard.add(InlineKeyboardButton("Next", callback_data="done"),
-                     InlineKeyboardButton("Cancel", callback_data="cancel"))
+        keyboard.add(InlineKeyboardButton("Back", callback_data='back'),
+                     InlineKeyboardButton("Next", callback_data="done"))
+        keyboard.add(InlineKeyboardButton("Cancel", callback_data="cancel"))
+        for row in keyboard.inline_keyboard:
+            for button in row:
+                if button.callback_data == "done":
+                    row.remove(button)
+            return keyboard
+
+
+def show_budget_options_state(state_data) -> InlineKeyboardMarkup:
+    if state_data == 'usd':
+        options = ['less than 650$', '650 - 1300$', '1300 - 1950$',
+                   '1950 - 2600$', '2600 - 3250$', 'more than 3250$']
+        keyboard = InlineKeyboardMarkup()
+        for option in options:
+            button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
+            keyboard.add(button)
+        keyboard.add(InlineKeyboardButton("Back", callback_data='back'),
+                     InlineKeyboardButton("Next", callback_data="done"))
+        keyboard.add(InlineKeyboardButton("Cancel", callback_data="cancel"))
+        for row in keyboard.inline_keyboard:
+            for button in row:
+                if button.callback_data == "done":
+                    row.remove(button)
+            return keyboard
+    elif state_data == 'rupiah':
+        options = ["less than 10 mln", "10 mln - 20 mln", "20 mln - 30 mln",
+                   "30 mln - 40 mln", "40 mln - 50 mln", "more than 50 mln"]
+        keyboard = InlineKeyboardMarkup()
+        for option in options:
+            button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
+            keyboard.add(button)
+        keyboard.add(InlineKeyboardButton("Back", callback_data='back'),
+                     InlineKeyboardButton("Next", callback_data="done"))
+        keyboard.add(InlineKeyboardButton("Cancel", callback_data="cancel"))
         for row in keyboard.inline_keyboard:
             for button in row:
                 if button.callback_data == "done":
@@ -101,8 +138,9 @@ def show_location_options() -> InlineKeyboardMarkup:
     for location in locations:
         button = InlineKeyboardButton(location[0], callback_data=f"select_option:{location[0]}")
         keyboard.add(button)
-    keyboard.add(InlineKeyboardButton("Next", callback_data="done"),
-                 InlineKeyboardButton("Cancel", callback_data="cancel"))
+    keyboard.add(InlineKeyboardButton("Back", callback_data='back'),
+                 InlineKeyboardButton("Next", callback_data="done"))
+    keyboard.add(InlineKeyboardButton("Cancel", callback_data="cancel"))
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == "done":
@@ -117,8 +155,9 @@ def show_accommodation_type_options() -> InlineKeyboardMarkup:
     for option in options:
         button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
         keyboard.add(button)
-    keyboard.add(InlineKeyboardButton("Next", callback_data="done"),
-                 InlineKeyboardButton("Cancel", callback_data="cancel"))
+    keyboard.add(InlineKeyboardButton("Back", callback_data='back'),
+                 InlineKeyboardButton("Next", callback_data="done"))
+    keyboard.add(InlineKeyboardButton("Cancel", callback_data="cancel"))
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == "done":
@@ -133,8 +172,9 @@ def show_amenities_options() -> InlineKeyboardMarkup:
     for option in options:
         button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
         keyboard.add(button)
-    keyboard.add(InlineKeyboardButton("Next", callback_data="done"),
-                 InlineKeyboardButton("Cancel", callback_data="cancel"))
+    keyboard.add(InlineKeyboardButton("Back", callback_data='back'),
+                 InlineKeyboardButton("Next", callback_data="done"))
+    keyboard.add(InlineKeyboardButton("Cancel", callback_data="cancel"))
     for row in keyboard.inline_keyboard:
         for button in row:
             if button.callback_data == "done":
@@ -161,6 +201,13 @@ def apartment_contacts(ap) -> InlineKeyboardMarkup:
 def contacts(ap) -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton('See contacts', callback_data=f'contact_{ap[0]}')]
+    ])
+    return kb
+
+
+def contacts_favorites(ap) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton('See contacts', callback_data=f'contact_favorites_{ap[0]}')]
     ])
     return kb
 

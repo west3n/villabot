@@ -53,7 +53,6 @@ async def registration_step_4(msg: types.Message, state: FSMContext):
             await msg.answer('Wrong data, try again')
 
 
-
 async def registration_finish(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_reply_markup()
     async with state.proxy() as data:
@@ -88,6 +87,6 @@ def register(dp: Dispatcher):
     dp.register_callback_query_handler(registration_step_1, text='register')
     dp.register_message_handler(cmd_cancel, text='Cancel', state='*')
     dp.register_message_handler(registration_step_3, state=Registration.first_name)
-    dp.register_message_handler(registration_step_4, content_types=types.ContentType.CONTACT,
+    dp.register_message_handler(registration_step_4, content_types=[types.ContentType.TEXT, types.ContentType.CONTACT],
                                 state=Registration.contact)
     dp.register_callback_query_handler(registration_finish, state=Registration.lang)

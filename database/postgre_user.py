@@ -20,6 +20,15 @@ async def add_user(username, tg_id, start_register, last_activity, data, last_na
     db.commit()
 
 
+async def update_user(username, tg_id, start_register, last_activity, data, last_name):
+    cur.execute(
+        "UPDATE appart_rentuser SET first_name = %s, last_name = %s, username = %s, register = %s, "
+        "last_activity = %s, default_lang = %s, phone = %s WHERE tg_id = %s",
+        (data.get('first_name'), last_name, username, start_register,
+         last_activity, data.get('lang'), data.get('contact'), tg_id))
+    db.commit()
+
+
 async def update_activity(last_activity, tg_id):
     cur.execute("UPDATE appart_rentuser SET last_activity=%s WHERE tg_id=%s", (last_activity, tg_id,))
     db.commit()

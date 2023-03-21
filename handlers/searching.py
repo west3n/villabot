@@ -39,25 +39,44 @@ async def rental_period(call: types.CallbackQuery):
 
 
 async def currency(call: types.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-        data['rental_period'] = call.data
-    await call.bot.edit_message_text(chat_id=call.message.chat.id,
-                                     message_id=call.message.message_id,
-                                     text='Choose your currency:',
-                                     reply_markup=inline.currency())
-    await Searching.next()
+    if call.data == 'back':
+        await state.reset_state()
+        await call.message.delete()
+        name = call.from_user.first_name
+        await call.message.answer(f"Hello, {name}! Happy to see you in VillaBot! 🙌\n"
+                                  f"Let's find awesome villa!", reply_markup=inline.get_started())
+    else:
+        async with state.proxy() as data:
+            data['rental_period'] = call.data
+        await call.bot.edit_message_text(chat_id=call.message.chat.id,
+                                         message_id=call.message.message_id,
+                                         text='Choose your currency:',
+                                         reply_markup=inline.currency())
+        await Searching.next()
 
 
 async def budget(call: types.CallbackQuery, state: FSMContext):
-    keyboard = inline.show_budget_options(call)
-    async with state.proxy() as data:
-        data['currency'] = call.data
-    await Searching.next()
-    await call.bot.edit_message_text(
-        chat_id=call.message.chat.id,
-        message_id=call.message.message_id,
-        text='Choose your budget:\n(You can choose several answers)',
-        reply_markup=keyboard)
+    state_data = await state.get_data()
+    print(state_data)
+    if call.data == 'back':
+        await state.reset_state()
+        await call.message.edit_reply_markup()
+        await call.bot.edit_message_text(chat_id=call.message.chat.id,
+                                         message_id=call.message.message_id,
+                                         text="Please, answer the following questions about your future villa 🏠\n\n"
+                                              "Rental period:",
+                                         reply_markup=inline.rental_period())
+        await Searching.rental_period.set()
+    else:
+        keyboard = inline.show_budget_options(call)
+        async with state.proxy() as data:
+            data['currency'] = call.data
+        await Searching.next()
+        await call.bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text='Choose your budget:\n(You can choose several answers)',
+            reply_markup=keyboard)
 
 
 async def budget_handler(call: types.CallbackQuery, state: FSMContext):
@@ -98,21 +117,28 @@ async def budget_handler(call: types.CallbackQuery, state: FSMContext):
 
 
 async def budget_done_handler(call: types.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-        selected_options = data.get('selected_options', [])
-    if selected_options:
-        await state.update_data(selected_options=selected_options)
-        await state.update_data({'selected_options': []})
-        async with state.proxy() as data:
-            data['budget'] = selected_options
-        await call.bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text='Accommodation location:\n(You can choose several answers)',
-            reply_markup=inline.show_location_options())
+    state_data = await state.get_data()
+    print(state_data)
+    if call.data == 'back':
+        await state.set_state(Searching.rental_period.state)
+        await call.bot.edit_message_text(chat_id=call.message.chat.id,
+                                         message_id=call.message.message_id,
+                                         text='Choose your currency:',
+                                         reply_markup=inline.currency())
         await Searching.next()
     else:
-        await call.answer(text="No budget selected", show_alert=True)
+        async with state.proxy() as data:
+            selected_options = data.get('selected_options', [])
+            await state.update_data(selected_options=selected_options)
+            await state.update_data({'selected_options': []})
+            async with state.proxy() as data:
+                data['budget'] = selected_options
+            await call.bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                text='Accommodation location:\n(You can choose several answers)',
+                reply_markup=inline.show_location_options())
+            await Searching.next()
 
 
 async def location_handler(call: types.CallbackQuery, state: FSMContext):
@@ -153,21 +179,37 @@ async def location_handler(call: types.CallbackQuery, state: FSMContext):
 
 
 async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
+    state_data = await state.get_data()
+    print(state_data)
     async with state.proxy() as data:
-        selected_options = data.get('selected_options', [])
-    if selected_options:
-        await state.update_data(selected_options=selected_options)
-        await state.update_data({'selected_options': []})
-        async with state.proxy() as data:
-            data['location'] = selected_options
+        data['currency'] = call.data
+        state_data = await state.get_data()
+        currency_data = state_data['currency']
+        print(currency_data)
+    if call.data == 'back':
+        await state.set_state(Searching.currency.state)
+        await Searching.next()
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="Accommodation type:\n(You can choose several answers)",
-            reply_markup=inline.show_accommodation_type_options())
-        await Searching.next()
+            text='Choose your budget:\n(You can choose several answers)',
+            reply_markup=inline.show_budget_options_state(currency_data))
     else:
-        await call.answer(text="No location selected", show_alert=True)
+        async with state.proxy() as data:
+            selected_options = data.get('selected_options', [])
+            if selected_options:
+                await state.update_data(selected_options=selected_options)
+                await state.update_data({'selected_options': []})
+                async with state.proxy() as data:
+                    data['location'] = selected_options
+                await call.bot.edit_message_text(
+                    chat_id=call.message.chat.id,
+                    message_id=call.message.message_id,
+                    text="Accommodation type:\n(You can choose several answers)",
+                    reply_markup=inline.show_accommodation_type_options())
+                await Searching.next()
+            else:
+                await call.answer(text="No location selected", show_alert=True)
 
 
 async def accommodation_type_handler(call: types.CallbackQuery, state: FSMContext):
@@ -208,21 +250,35 @@ async def accommodation_type_handler(call: types.CallbackQuery, state: FSMContex
 
 
 async def accommodation_type_done_handler(call: types.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-        selected_options = data.get('selected_options', [])
-    if selected_options:
-        await state.update_data(selected_options=selected_options)
-        await state.update_data({'selected_options': []})
+    state_data = await state.get_data()
+    print(state_data)
+    if call.data == 'back':
+        await state.set_state(Searching.budget.state)
         async with state.proxy() as data:
-            data['accommodation_type'] = selected_options
-        await call.bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text="Additional requests:\n(You can choose several answers)",
-            reply_markup=inline.show_amenities_options())
-        await Searching.next()
+            selected_options = data.get('selected_options', [])
+            await state.update_data(selected_options=selected_options)
+            await state.update_data({'selected_options': []})
+            async with state.proxy() as data:
+                data['location'] = selected_options
+            await call.bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                text="Accommodation type:\n(You can choose several answers)",
+                reply_markup=inline.show_accommodation_type_options())
+            await Searching.next()
     else:
-        await call.answer(text="No accommodation type selected", show_alert=True)
+        async with state.proxy() as data:
+            selected_options = data.get('selected_options', [])
+            await state.update_data(selected_options=selected_options)
+            await state.update_data({'selected_options': []})
+            async with state.proxy() as data:
+                data['accommodation_type'] = selected_options
+            await call.bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                text="Additional requests:\n(You can choose several answers)",
+                reply_markup=inline.show_amenities_options())
+            await Searching.next()
 
 
 async def amenities_handler(call: types.CallbackQuery, state: FSMContext):
@@ -263,30 +319,44 @@ async def amenities_handler(call: types.CallbackQuery, state: FSMContext):
 
 
 async def amenities_done_handler(call: types.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-        selected_options = data.get('selected_options', [])
-    if selected_options:
-        await state.update_data(selected_options=selected_options)
-        await state.update_data({'selected_options': []})
+    state_data = await state.get_data()
+    print(state_data)
+    if call.data == 'back':
+        await state.set_state(Searching.location.state)
         async with state.proxy() as data:
-            data['amenities'] = selected_options
-        budget_str = ", ".join(data.get('budget'))
-        location_str = ", ".join(data.get('location'))
-        accommodation_type_str = ", ".join(data.get('accommodation_type'))
-        amenities_str = ", ".join(data.get('amenities'))
-        await call.bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text=f"Please, check your request:\n\n"
-                 f"<b>Rental period:</b> <em>{data.get('rental_period')}</em>\n"
-                 f"<b>Budget:</b> <em>{budget_str}</em>\n"
-                 f"<b>Locations:</b> <em>{location_str}</em>\n"
-                 f"<b>Accommodation type:</b> <em>{accommodation_type_str}</em>\n"
-                 f"<b>Amenities:</b> <em>{amenities_str}</em>\n",
-            reply_markup=inline.searching())
-        await Searching.next()
+            selected_options = data.get('selected_options', [])
+            await state.update_data(selected_options=selected_options)
+            await state.update_data({'selected_options': []})
+            async with state.proxy() as data:
+                data['accommodation_type'] = selected_options
+            await call.bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                text="Additional requests:\n(You can choose several answers)",
+                reply_markup=inline.show_amenities_options())
+            await Searching.next()
     else:
-        await call.answer(text="No amenities selected", show_alert=True)
+        async with state.proxy() as data:
+            selected_options = data.get('selected_options', [])
+            await state.update_data(selected_options=selected_options)
+            await state.update_data({'selected_options': []})
+            async with state.proxy() as data:
+                data['amenities'] = selected_options
+            budget_str = ", ".join(data.get('budget'))
+            location_str = ", ".join(data.get('location'))
+            accommodation_type_str = ", ".join(data.get('accommodation_type'))
+            amenities_str = ", ".join(data.get('amenities'))
+            await call.bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                text=f"Please, check your request:\n\n"
+                     f"<b>Rental period:</b> <em>{data.get('rental_period')}</em>\n"
+                     f"<b>Budget:</b> <em>{budget_str}</em>\n"
+                     f"<b>Locations:</b> <em>{location_str}</em>\n"
+                     f"<b>Accommodation type:</b> <em>{accommodation_type_str}</em>\n"
+                     f"<b>Amenities:</b> <em>{amenities_str}</em>\n",
+                reply_markup=inline.searching())
+            await Searching.next()
 
 
 def format_number(num: float):
@@ -306,6 +376,8 @@ def format_number(num: float):
 
 
 async def searching_finish(call: types.CallbackQuery, state: FSMContext):
+    state_data = await state.get_data()
+    print(state_data)
     async with state.proxy() as data:
         rental_period_str = data.get('rental_period')
         currency_str = data.get('currency')
@@ -326,7 +398,6 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
         await state.finish()
         aps = get_apart(rental_period_str, currency_str, budget_str,
                         location_str, accommodation_type_str, amenities_str)
-        print(aps)
         if not aps:
             await call.message.answer(text='Nothing found.')
         for ap in aps:
@@ -375,24 +446,24 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
 def register(dp: Dispatcher):
     dp.register_callback_query_handler(rental_period, lambda c: c.data == "get_started")
     dp.register_callback_query_handler(cmd_cancel, text='cancel', state='*')
-    dp.register_callback_query_handler(currency, lambda c: c.data in ('DAY', 'MONTH', 'YEAR'),
+    dp.register_callback_query_handler(currency, lambda c: c.data in ('DAY', 'MONTH', 'YEAR', 'back'),
                                        state=Searching.rental_period)
-    dp.register_callback_query_handler(budget, lambda c: c.data in ('usd', 'rupiah'),
+    dp.register_callback_query_handler(budget, lambda c: c.data in ('usd', 'rupiah', 'back'),
                                        state=Searching.currency)
     dp.register_callback_query_handler(budget_handler, lambda c: c.data.startswith("select_option"),
                                        state=Searching.budget)
-    dp.register_callback_query_handler(budget_done_handler, lambda c: c.data == "done",
+    dp.register_callback_query_handler(budget_done_handler, lambda c: c.data in ("done", 'back'),
                                        state=Searching.budget)
     dp.register_callback_query_handler(location_handler, lambda c: c.data.startswith("select_option"),
                                        state=Searching.location)
-    dp.register_callback_query_handler(location_done_handler, lambda c: c.data == "done",
+    dp.register_callback_query_handler(location_done_handler, lambda c: c.data in ("done", 'back'),
                                        state=Searching.location)
     dp.register_callback_query_handler(accommodation_type_handler, lambda c: c.data.startswith("select_option"),
                                        state=Searching.accommodation_type)
-    dp.register_callback_query_handler(accommodation_type_done_handler, lambda c: c.data == "done",
+    dp.register_callback_query_handler(accommodation_type_done_handler, lambda c: c.data in ("done", 'back'),
                                        state=Searching.accommodation_type)
     dp.register_callback_query_handler(amenities_handler, lambda c: c.data.startswith("select_option"),
                                        state=Searching.amenities)
-    dp.register_callback_query_handler(amenities_done_handler, lambda c: c.data == "done",
+    dp.register_callback_query_handler(amenities_done_handler, lambda c: c.data in ("done", 'back'),
                                        state=Searching.amenities)
     dp.register_callback_query_handler(searching_finish, state=Searching.searching)

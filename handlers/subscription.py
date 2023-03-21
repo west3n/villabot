@@ -14,15 +14,32 @@ async def apartment_contacts(call: types.CallbackQuery):
         unique_id = int(call.data.split("_")[1])
         cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
         contact = cur.fetchone()
-        await call.message.answer(
-            f"<b>Unique ID:</b> {unique_id}\n"
+        await call.message.reply(
             f"<b>Agent name:</b> {contact[0]}\n"
             f"<b>Link to WhatsApp:</b> {contact[1]}"
         )
     else:
-        await call.message.answer("Do you like this variant? If you want to contact the renter please turn on "
-                                  "the subscription for our service for one month",
-                                  reply_markup=inline.subscribe())
+        await call.message.reply("Do you like this variant? If you want to contact the renter please turn on "
+                                 "the subscription for our service for one month",
+                                 reply_markup=inline.subscribe())
+
+
+async def apartment_contacts_favorites(call: types.CallbackQuery):
+    await call.message.edit_reply_markup()
+    tg_id = call.from_user.id
+    subscription_status = await database.postgre_user.check_subscribe_status(tg_id)
+    if subscription_status[0]:
+        unique_id = int(call.data.split("_")[2])
+        cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
+        contact = cur.fetchone()
+        await call.message.reply(
+            f"<b>Agent name:</b> {contact[0]}\n"
+            f"<b>Link to WhatsApp:</b> {contact[1]}"
+        )
+    else:
+        await call.message.reply("Do you like this variant? If you want to contact the renter please turn on "
+                                 "the subscription for our service for one month",
+                                 reply_markup=inline.subscribe())
 
 
 async def save_to_favorites(call: types.CallbackQuery):
@@ -56,6 +73,7 @@ def register(dp: Dispatcher):
         count = cur.fetchone()[0]
         for n in range(0, int(count) + 10):
             dp.register_callback_query_handler(apartment_contacts, text=f'contact_{n}')
+            dp.register_callback_query_handler(apartment_contacts_favorites, text=f'contact_favorites_{n}')
             dp.register_callback_query_handler(save_to_favorites, text=f"save_{n}")
             dp.register_callback_query_handler(turn_on_subscription, text='subscription_on')
     except TypeError as e:
