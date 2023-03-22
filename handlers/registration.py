@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from keyboards.inline import language
 from keyboards.reply import cancel, remove, contact
-from database.postgre_user import add_user, status, update_user
+from database.postgre_user import add_user, status, update_user, lang
 import datetime
 
 
@@ -16,14 +16,16 @@ class Registration(StatesGroup):
 
 async def registration_step_1(call: types.CallbackQuery):
     await call.message.delete()
-    await call.message.answer(f'Enter your Name:', reply_markup=cancel())
+    lan = await lang(call.from_user.id)
+    await call.message.answer(f'Enter your Name:', reply_markup=cancel(lan))
     await Registration.first_name.set()
 
 
 async def registration_step_3(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['first_name'] = msg.text
-    await msg.answer(f'Please send your contact or write your phone number', reply_markup=contact())
+    lan = await lang(msg.from_user.id)
+    await msg.answer(f'Please send your contact or write your phone number', reply_markup=contact(lan))
     await Registration.next()
 
 
@@ -85,7 +87,7 @@ async def cmd_cancel(msg: types.Message, state: FSMContext):
 
 def register(dp: Dispatcher):
     dp.register_callback_query_handler(registration_step_1, text='register')
-    dp.register_message_handler(cmd_cancel, text='Cancel', state='*')
+    dp.register_message_handler(cmd_cancel, text=['Cancel', 'Отмена'], state='*')
     dp.register_message_handler(registration_step_3, state=Registration.first_name)
     dp.register_message_handler(registration_step_4, content_types=[types.ContentType.TEXT, types.ContentType.CONTACT],
                                 state=Registration.contact)

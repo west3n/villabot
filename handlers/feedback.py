@@ -6,6 +6,7 @@ from database.postgre_feedback import add_feedback, get_update_history, update_f
 from database.postgre_user import lang
 from texts.text import get_text
 
+
 class Feedback(StatesGroup):
     f_type = State()
     text = State()
@@ -13,6 +14,16 @@ class Feedback(StatesGroup):
 
 class ContinueFeedback(StatesGroup):
     text = State()
+
+
+async def cmd_cancel(call: types.CallbackQuery, state: FSMContext):
+    tg_id = call.from_user.id
+    await call.message.delete()
+    await state.finish()
+    action = 4
+    language = await lang(tg_id)
+    text = await get_text(action, language)
+    await call.message.answer(text)
 
 
 async def feedback_type(call: types.CallbackQuery):
@@ -91,6 +102,7 @@ async def feedback_delete(call: types.CallbackQuery):
 
 
 def register(dp: Dispatcher):
+    dp.register_callback_query_handler(cmd_cancel, text='cancel', state='*')
     dp.register_callback_query_handler(feedback_type, text='feedback')
     dp.register_callback_query_handler(feedback_text, state=Feedback.f_type)
     dp.register_message_handler(feedback_finish, state=Feedback.text)

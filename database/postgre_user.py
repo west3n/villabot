@@ -15,6 +15,7 @@ async def lang(tg_id):
     result = cur.fetchone()
     return result[0]
 
+
 async def add_user(username, tg_id, start_register, last_activity, data, last_name):
     cur.execute(
         "INSERT INTO appart_rentuser (first_name, last_name, username, tg_id, "

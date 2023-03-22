@@ -7,7 +7,9 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import InlineKeyboardButton
-from database.postgre_find import get_apart, get_location_name, get_image
+from database.postgre_find import get_apart, get_location_name, get_image, save_request
+from database.postgre_user import lang
+from texts.text import get_text
 
 from keyboards import inline
 
@@ -23,18 +25,24 @@ class Searching(StatesGroup):
 
 
 async def cmd_cancel(call: types.CallbackQuery, state: FSMContext):
+    tg_id = call.from_user.id
     await call.message.delete()
     await state.finish()
-    await call.message.answer('Action Canceled!')
+    action = 4
+    language = await lang(tg_id)
+    text = await get_text(action, language)
+    await call.message.answer(text)
 
 
 async def rental_period(call: types.CallbackQuery):
     await call.message.edit_reply_markup()
+    language = await lang(call.from_user.id)
+    action = 10
+    text = await get_text(action, language)
     await call.bot.edit_message_text(chat_id=call.message.chat.id,
                                      message_id=call.message.message_id,
-                                     text="Please, answer the following questions about your future villa 🏠\n\n"
-                                          "Rental period:",
-                                     reply_markup=inline.rental_period())
+                                     text=text,
+                                     reply_markup=inline.rental_period(language))
     await Searching.rental_period.set()
 
 
@@ -44,15 +52,20 @@ async def currency(call: types.CallbackQuery, state: FSMContext):
         await call.message.delete()
         await state.update_data({'selected_options': []})
         name = call.from_user.first_name
-        await call.message.answer(f"Hello, {name}! Happy to see you in VillaBot! 🙌\n"
-                                  f"Let's find awesome villa!", reply_markup=inline.get_started())
+        language = await lang(call.from_user.id)
+        action = 1
+        text = await get_text(action, language)
+        await call.message.answer(text=f'{name}, {text}', reply_markup=inline.get_started(language))
     else:
         async with state.proxy() as data:
             data['rental_period'] = call.data
+        language = await lang(call.from_user.id)
+        action = 11
+        text = await get_text(action, language)
         await call.bot.edit_message_text(chat_id=call.message.chat.id,
                                          message_id=call.message.message_id,
-                                         text='Choose your currency:',
-                                         reply_markup=inline.currency())
+                                         text=text,
+                                         reply_markup=inline.currency(language))
         await Searching.next()
 
 
@@ -68,12 +81,12 @@ async def budget(call: types.CallbackQuery, state: FSMContext):
         text = await get_text(action, language)
         await call.bot.edit_message_text(chat_id=call.message.chat.id,
                                          message_id=call.message.message_id,
-                                         text="Please, answer the following questions about your future villa 🏠\n\n"
-                                              "Rental period:",
-                                         reply_markup=inline.rental_period())
+                                         text=text,
+                                         reply_markup=inline.rental_period(language))
         await Searching.rental_period.set()
     else:
-        keyboard = inline.show_budget_options(call)
+        language = await lang(call.from_user.id)
+        keyboard = inline.show_budget_options(call, language)
         async with state.proxy() as data:
             data['currency'] = call.data
         await Searching.next()
@@ -82,7 +95,7 @@ async def budget(call: types.CallbackQuery, state: FSMContext):
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text='Choose your budget:\n(You can choose several answers)',
+            text=text,
             reply_markup=keyboard)
 
 
@@ -134,8 +147,8 @@ async def budget_done_handler(call: types.CallbackQuery, state: FSMContext):
         await state.update_data({'selected_options': []})
         await call.bot.edit_message_text(chat_id=call.message.chat.id,
                                          message_id=call.message.message_id,
-                                         text='Choose your currency:',
-                                         reply_markup=inline.currency())
+                                         text=text,
+                                         reply_markup=inline.currency(language))
         await Searching.next()
     else:
         async with state.proxy() as data:
@@ -144,11 +157,14 @@ async def budget_done_handler(call: types.CallbackQuery, state: FSMContext):
             await state.update_data({'selected_options': []})
             async with state.proxy() as data:
                 data['budget'] = selected_options
+            language = await lang(call.from_user.id)
+            action = 13
+            text = await get_text(action, language)
             await call.bot.edit_message_text(
                 chat_id=call.message.chat.id,
                 message_id=call.message.message_id,
-                text='Accommodation location:\n(You can choose several answers)',
-                reply_markup=inline.show_location_options())
+                text=text,
+                reply_markup=inline.show_location_options(language))
             await Searching.next()
 
 
@@ -196,13 +212,17 @@ async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
         currency_data = data['currency']
         print(currency_data)
     if call.data == 'back':
+        await state.update_data({'selected_options': []})
         await state.set_state(Searching.currency.state)
         await Searching.next()
+        language = await lang(call.from_user.id)
+        action = 12
+        text = await get_text(action, language)
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text='Choose your budget:\n(You can choose several answers)',
-            reply_markup=inline.show_budget_options_state(currency_data))
+            text=text,
+            reply_markup=inline.show_budget_options_state(currency_data, language))
     else:
         async with state.proxy() as data:
             selected_options = data.get('selected_options', [])
@@ -211,11 +231,14 @@ async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
                 await state.update_data({'selected_options': []})
                 async with state.proxy() as data:
                     data['location'] = selected_options
+                language = await lang(call.from_user.id)
+                action = 14
+                text = await get_text(action, language)
                 await call.bot.edit_message_text(
                     chat_id=call.message.chat.id,
                     message_id=call.message.message_id,
-                    text="Accommodation type:\n(You can choose several answers)",
-                    reply_markup=inline.show_accommodation_type_options())
+                    text=text,
+                    reply_markup=inline.show_accommodation_type_options(language))
                 await Searching.next()
             else:
                 language = await lang(call.from_user.id)
@@ -283,11 +306,14 @@ async def accommodation_type_done_handler(call: types.CallbackQuery, state: FSMC
             await state.update_data({'selected_options': []})
             async with state.proxy() as data:
                 data['accommodation_type'] = selected_options
+            language = await lang(call.from_user.id)
+            action = 16
+            text = await get_text(action, language)
             await call.bot.edit_message_text(
                 chat_id=call.message.chat.id,
                 message_id=call.message.message_id,
-                text="Additional requests:\n(You can choose several answers)",
-                reply_markup=inline.show_amenities_options())
+                text=text,
+                reply_markup=inline.show_amenities_options(language))
             await Searching.next()
 
 
@@ -333,18 +359,16 @@ async def amenities_done_handler(call: types.CallbackQuery, state: FSMContext):
     print(state_data)
     if call.data == 'back':
         await state.set_state(Searching.location.state)
-        async with state.proxy() as data:
-            selected_options = data.get('selected_options', [])
-            await state.update_data(selected_options=selected_options)
-            await state.update_data({'selected_options': []})
-            async with state.proxy() as data:
-                data['accommodation_type'] = selected_options
-            await call.bot.edit_message_text(
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-                text="Additional requests:\n(You can choose several answers)",
-                reply_markup=inline.show_amenities_options())
-            await Searching.next()
+        await state.update_data({'selected_options': []})
+        language = await lang(call.from_user.id)
+        action = 14
+        text = await get_text(action, language)
+        await call.bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=text,
+            reply_markup=inline.show_accommodation_type_options(language))
+        await Searching.next()
     else:
         async with state.proxy() as data:
             selected_options = data.get('selected_options', [])
@@ -356,16 +380,36 @@ async def amenities_done_handler(call: types.CallbackQuery, state: FSMContext):
             location_str = ", ".join(data.get('location'))
             accommodation_type_str = ", ".join(data.get('accommodation_type'))
             amenities_str = ", ".join(data.get('amenities'))
-            await call.bot.edit_message_text(
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-                text=f"Please, check your request:\n\n"
-                     f"<b>Rental period:</b> <em>{data.get('rental_period')}</em>\n"
-                     f"<b>Budget:</b> <em>{budget_str}</em>\n"
-                     f"<b>Locations:</b> <em>{location_str}</em>\n"
-                     f"<b>Accommodation type:</b> <em>{accommodation_type_str}</em>\n"
-                     f"<b>Amenities:</b> <em>{amenities_str}</em>\n",
-                reply_markup=inline.searching())
+            if not budget_str:
+                budget_str = budget_str.replace("", "Whatever")
+            if not accommodation_type_str:
+                accommodation_type_str = accommodation_type_str.replace("", "Whatever")
+            if not amenities_str:
+                amenities_str = amenities_str.replace("", "Whatever")
+            language = await lang(call.from_user.id)
+
+            if language in ['EN', 'IN']:
+                await call.bot.edit_message_text(
+                    chat_id=call.message.chat.id,
+                    message_id=call.message.message_id,
+                    text=f"Please, check your request:\n\n"
+                         f"<b>Rental period:</b> <em>{data.get('rental_period')}</em>\n"
+                         f"<b>Budget:</b> <em>{budget_str}</em>\n"
+                         f"<b>Locations:</b> <em>{location_str}</em>\n"
+                         f"<b>Accommodation types:</b> <em>{accommodation_type_str}</em>\n"
+                         f"<b>Amenities:</b> <em>{amenities_str}</em>\n",
+                    reply_markup=inline.searching(language))
+            if language == 'RU':
+                await call.bot.edit_message_text(
+                    chat_id=call.message.chat.id,
+                    message_id=call.message.message_id,
+                    text=f"Пожалуйста, проверьте ваш запрос:\n\n"
+                         f"<b>Период:</b> <em>{data.get('rental_period')}</em>\n"
+                         f"<b>Бюджет:</b> <em>{budget_str}</em>\n"
+                         f"<b>Локация:</b> <em>{location_str}</em>\n"
+                         f"<b>Тип недвижимости:</b> <em>{accommodation_type_str}</em>\n"
+                         f"<b>Удобства:</b> <em>{amenities_str}</em>\n",
+                    reply_markup=inline.searching(language))
             await Searching.next()
 
 
@@ -386,71 +430,114 @@ def format_number(num: float):
 
 
 async def searching_finish(call: types.CallbackQuery, state: FSMContext):
-    state_data = await state.get_data()
-    print(state_data)
-    async with state.proxy() as data:
-        rental_period_str = data.get('rental_period')
-        currency_str = data.get('currency')
-        budget_str = ", ".join(data.get('budget'))
-        location_str = ", ".join(data.get('location'))
-        accommodation_type_str = ", ".join(data.get('accommodation_type'))
-        amenities_str = ", ".join(data.get('amenities'))
-    if call.data == 'get_started':
-        await state.finish()
-        await rental_period(call)
-    elif call.data == 'searching':
+    if call.data == 'back':
+        await state.set_state(Searching.accommodation_type.state)
+        await state.update_data({'selected_options': []})
+        language = await lang(call.from_user.id)
+        action = 16
+        text = await get_text(action, language)
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text='Searching...')
-        await asyncio.sleep(3)
-        await call.message.delete()
-        await state.finish()
-        aps = get_apart(rental_period_str, currency_str, budget_str,
-                        location_str, accommodation_type_str, amenities_str)
-        if not aps:
-            await call.message.answer(text='Nothing found.')
-        for ap in aps:
-            ap_type = ''
-            if ap[4] == 'VI':
-                ap_type = 'Villa Entirely'
-            if ap[4] == 'RO':
-                ap_type = 'Room in shared villa'
-            if ap[4] == 'AP':
-                ap_type = 'Apartment'
-            if ap[4] == 'GH':
-                ap_type = 'Guesthouse'
-            location_id = ap[11]
-            location = get_location_name(location_id)[0]
-            image = get_image(ap[0])
-            photo_files = [os.path.join('/Users/caramba/PycharmProject/BaliAdmin', f) for f in image]
-            media = []
-            with open(photo_files[0], "rb") as f:
-                photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])
-                caption = f'<b>Type:</b> {ap_type}\n' \
-                          f'<b>Location</b>: {location}\n' \
-                          f'<b>Amenities:</b> {ap[6]}\n' \
-                          f'<b>Rent period:</b> {ap[7]}\n' \
-                          f'<b>Price Rupee:</b> {ap[8]}\n' \
-                          f'<b>Price USD:</b> {ap[9]}\n' \
-                          f'<b>Description:</b> {ap[10]}'
-                media.append(types.InputMediaPhoto(media=photo, caption=caption))
-            for file in photo_files[1:]:
-                with open(file, "rb") as f:
-                    photo = types.InputFile(io.BytesIO(f.read()), filename=file)
+            text=text,
+            reply_markup=inline.show_amenities_options(language))
+        await Searching.next()
+    else:
+        state_data = await state.get_data()
+        print(state_data)
+        async with state.proxy() as data:
+            rental_period_str = data.get('rental_period')
+            currency_str = data.get('currency')
+            budget_str = ", ".join(data.get('budget'))
+            location_str = ", ".join(data.get('location'))
+            accommodation_type_str = ", ".join(data.get('accommodation_type'))
+            amenities_str = ", ".join(data.get('amenities'))
+        if call.data == 'get_started':
+            await state.finish()
+            await rental_period(call)
+        elif call.data == 'save':
+            language = await lang(call.from_user.id)
+            await call.message.edit_reply_markup(reply_markup=inline.searching_2(language))
+            await save_request(call.from_user.id, rental_period_str, currency_str, budget_str,
+                               location_str, accommodation_type_str, amenities_str)
+
+            action = 17
+            text = await get_text(action, language)
+            await call.answer(text=text,
+                              show_alert=True)
+        elif call.data == 'searching':
+            language = await lang(call.from_user.id)
+            action = 18
+            text = await get_text(action, language)
+            await call.bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                text=text)
+            await asyncio.sleep(3)
+            await call.message.delete()
+            await state.finish()
+            aps = get_apart(rental_period_str, currency_str, budget_str,
+                            location_str, accommodation_type_str, amenities_str)
+            if not aps:
+                language = await lang(call.from_user.id)
+                text = await get_text(3, language)
+                await call.message.answer(text=text)
+            for ap in aps:
+                ap_type = ''
+                if ap[4] == 'VI':
+                    ap_type = 'Villa Entirely'
+                if ap[4] == 'RO':
+                    ap_type = 'Room in shared villa'
+                if ap[4] == 'AP':
+                    ap_type = 'Apartment'
+                if ap[4] == 'GH':
+                    ap_type = 'Guesthouse'
+                location_id = ap[11]
+                location = get_location_name(location_id)[0]
+                image = get_image(ap[0])
+                photo_files = [os.path.join('/Users/caramba/PycharmProject/BaliAdmin', f) for f in image]
+                media = []
+                with open(photo_files[0], "rb") as f:
+                    photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])
+                    caption = f'<b>Type:</b> {ap_type}\n' \
+                              f'<b>Location</b>: {location}\n' \
+                              f'<b>Amenities:</b> {ap[6]}\n' \
+                              f'<b>Rent period:</b> {ap[7]}\n' \
+                              f'<b>Price Rupee:</b> {ap[8]}\n' \
+                              f'<b>Price USD:</b> {ap[9]}\n' \
+                              f'<b>Description:</b> {ap[10]}'
                     media.append(types.InputMediaPhoto(media=photo, caption=caption))
-            text_message = await call.bot.send_media_group(chat_id=call.message.chat.id,
-                                                           media=media)
-            await call.bot.send_message(chat_id=call.message.chat.id,
-                                        text=f'<b>Type:</b> {ap_type}\n' 
-                                             f'<b>Location</b>: {location}\n' 
-                                             f'<b>Amenities:</b> {ap[6]}\n' 
-                                             f'<b>Rent period:</b> {ap[7]}\n' 
-                                             f'<b>Price Rupee:</b> {format_number(ap[8])}\n'
-                                             f'<b>Price USD:</b> {ap[9]}$\n' 
-                                             f'<b>Description:</b> {ap[10]}',
-                                        reply_to_message_id=text_message[0].message_id,
-                                        reply_markup=inline.apartment_contacts(str(ap[0])))
+                for file in photo_files[1:]:
+                    with open(file, "rb") as f:
+                        photo = types.InputFile(io.BytesIO(f.read()), filename=file)
+                        media.append(types.InputMediaPhoto(media=photo, caption=caption))
+                text_message = await call.bot.send_media_group(chat_id=call.message.chat.id,
+                                                               media=media)
+                language = await lang(call.from_user.id)
+                if language in ['EN', 'IN']:
+                    await call.bot.send_message(chat_id=call.message.chat.id,
+                                                text=f'<b>Unique ID:</b> {ap[0]}\n'
+                                                     f'<b>Type:</b> {ap_type}\n'
+                                                     f'<b>Location</b>: {location}\n'
+                                                     f'<b>Amenities:</b> {ap[6]}\n'
+                                                     f'<b>Rent period:</b> {ap[7]}\n'
+                                                     f'<b>Price Rupee:</b> {format_number(ap[8])}\n'
+                                                     f'<b>Price USD:</b> {ap[9]}$\n'
+                                                     f'<b>Description:</b> {ap[10]}',
+                                                reply_to_message_id=text_message[0].message_id,
+                                                reply_markup=inline.apartment_contacts(str(ap[0]), language))
+                elif language == 'RU':
+                    await call.bot.send_message(chat_id=call.message.chat.id,
+                                                text=f'<b>Уникальный ID:</b> {ap[0]}\n'
+                                                     f'<b>Тип недвижимости:</b> {ap_type}\n'
+                                                     f'<b>Локация</b>: {location}\n'
+                                                     f'<b>Удобства:</b> {ap[6]}\n'
+                                                     f'<b>Период:</b> {ap[7]}\n'
+                                                     f'<b>Цена в рупиях:</b> {format_number(ap[8])}\n'
+                                                     f'<b>Цена в долларах:</b> {ap[9]}$\n'
+                                                     f'<b>Описание:</b> {ap[10]}',
+                                                reply_to_message_id=text_message[0].message_id,
+                                                reply_markup=inline.apartment_contacts(str(ap[0]), language))
 
 
 def register(dp: Dispatcher):
