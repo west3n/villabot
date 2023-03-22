@@ -42,6 +42,7 @@ async def currency(call: types.CallbackQuery, state: FSMContext):
     if call.data == 'back':
         await state.reset_state()
         await call.message.delete()
+        await state.update_data({'selected_options': []})
         name = call.from_user.first_name
         await call.message.answer(f"Hello, {name}! Happy to see you in VillaBot! 🙌\n"
                                   f"Let's find awesome villa!", reply_markup=inline.get_started())
@@ -61,6 +62,10 @@ async def budget(call: types.CallbackQuery, state: FSMContext):
     if call.data == 'back':
         await state.reset_state()
         await call.message.edit_reply_markup()
+        await state.update_data({'selected_options': []})
+        language = await lang(call.from_user.id)
+        action = 10
+        text = await get_text(action, language)
         await call.bot.edit_message_text(chat_id=call.message.chat.id,
                                          message_id=call.message.message_id,
                                          text="Please, answer the following questions about your future villa 🏠\n\n"
@@ -72,6 +77,8 @@ async def budget(call: types.CallbackQuery, state: FSMContext):
         async with state.proxy() as data:
             data['currency'] = call.data
         await Searching.next()
+        action = 12
+        text = await get_text(action, language)
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
@@ -121,6 +128,10 @@ async def budget_done_handler(call: types.CallbackQuery, state: FSMContext):
     print(state_data)
     if call.data == 'back':
         await state.set_state(Searching.rental_period.state)
+        language = await lang(call.from_user.id)
+        action = 11
+        text = await get_text(action, language)
+        await state.update_data({'selected_options': []})
         await call.bot.edit_message_text(chat_id=call.message.chat.id,
                                          message_id=call.message.message_id,
                                          text='Choose your currency:',
@@ -182,9 +193,7 @@ async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
     state_data = await state.get_data()
     print(state_data)
     async with state.proxy() as data:
-        data['currency'] = call.data
-        state_data = await state.get_data()
-        currency_data = state_data['currency']
+        currency_data = data['currency']
         print(currency_data)
     if call.data == 'back':
         await state.set_state(Searching.currency.state)
@@ -209,7 +218,10 @@ async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
                     reply_markup=inline.show_accommodation_type_options())
                 await Searching.next()
             else:
-                await call.answer(text="No location selected", show_alert=True)
+                language = await lang(call.from_user.id)
+                action = 15
+                text = await get_text(action, language)
+                await call.answer(text=text, show_alert=True)
 
 
 async def accommodation_type_handler(call: types.CallbackQuery, state: FSMContext):
@@ -254,18 +266,16 @@ async def accommodation_type_done_handler(call: types.CallbackQuery, state: FSMC
     print(state_data)
     if call.data == 'back':
         await state.set_state(Searching.budget.state)
-        async with state.proxy() as data:
-            selected_options = data.get('selected_options', [])
-            await state.update_data(selected_options=selected_options)
-            await state.update_data({'selected_options': []})
-            async with state.proxy() as data:
-                data['location'] = selected_options
-            await call.bot.edit_message_text(
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-                text="Accommodation type:\n(You can choose several answers)",
-                reply_markup=inline.show_accommodation_type_options())
-            await Searching.next()
+        await state.update_data({'selected_options': []})
+        language = await lang(call.from_user.id)
+        action = 13
+        text = await get_text(action, language)
+        await call.bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=text,
+            reply_markup=inline.show_location_options(language))
+        await Searching.next()
     else:
         async with state.proxy() as data:
             selected_options = data.get('selected_options', [])

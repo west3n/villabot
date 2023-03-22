@@ -6,11 +6,17 @@ from database.postge_favorite import get_favorite
 from database.postgre_find import get_image, get_location_name
 from handlers.searching import format_number
 from keyboards.inline import contacts_favorites
+from database.postgre_user import lang
+from texts.text import get_text
 
 
 async def show_favorite(call: types.CallbackQuery):
     await call.message.delete()
-    await call.message.answer("Your favorite apartments:")
+    tg_id = call.from_user.id
+    action = 2
+    language = await lang(tg_id)
+    text = await get_text(action, language)
+    await call.message.answer(text=text)
     tg_id = call.from_user.id
     aps = await get_favorite(tg_id)
     if aps is not None:
@@ -54,10 +60,13 @@ async def show_favorite(call: types.CallbackQuery):
                                              f'<b>Price USD:</b> {ap[9]}$\n'
                                              f'<b>Description:</b> {ap[10]}',
                                         reply_to_message_id=text_message[0].message_id,
-                                        reply_markup=contacts_favorites(str(ap[0])))
+                                        reply_markup=contacts_favorites(str(ap[0]), language))
 
     if not aps:
-        await call.message.answer(text='Nothing found.')
+        action = 3
+        language = await lang(tg_id)
+        text = await get_text(action, language)
+        await call.message.answer(text=text)
 
 
 def register(dp: Dispatcher):

@@ -24,14 +24,25 @@ def language() -> InlineKeyboardMarkup:
     return kb
 
 
-def get_started() -> InlineKeyboardMarkup:
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton('Find apartments', callback_data='get_started')],
-        [InlineKeyboardButton('Show favorites', callback_data='show_favorite')],
-        [InlineKeyboardButton('Edit profile', callback_data='register')],
-        [InlineKeyboardButton('Send feedback', callback_data='feedback')]
-    ])
-    return kb
+def get_started(lang) -> InlineKeyboardMarkup:
+    if lang in ['EN', 'IN']:
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton('Find apartments', callback_data='get_started')],
+            [InlineKeyboardButton('Show favorites', callback_data='show_favorite'),
+             InlineKeyboardButton('Last saved request', callback_data='last_request')],
+            [InlineKeyboardButton('Edit profile', callback_data='register'),
+             InlineKeyboardButton('Send feedback', callback_data='feedback')]
+        ])
+        return kb
+    elif lang == 'RU':
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton('Найти апартаменты', callback_data='get_started')],
+            [InlineKeyboardButton('Показать избранное', callback_data='show_favorite')],
+            [InlineKeyboardButton('Последний сохраненный запрос', callback_data='last_request')],
+            [InlineKeyboardButton('Изменить профиль', callback_data='register'),
+             InlineKeyboardButton('Отправить отзыв', callback_data='feedback')]
+        ])
+        return kb
 
 
 def rental_period() -> InlineKeyboardMarkup:

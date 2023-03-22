@@ -4,6 +4,8 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from database.postgre_user import status, update_activity
 from keyboards import inline
+from database.postgre_user import lang
+from texts.text import get_text
 
 
 async def bot_start(msg: types.Message, state: FSMContext):
@@ -14,8 +16,11 @@ async def bot_start(msg: types.Message, state: FSMContext):
     if user:
         last_activity = datetime.datetime.now()
         await update_activity(last_activity, tg_id)
-        await msg.answer(f"Hello, {name}! Happy to see you in VillaBot! 🙌\n"
-                         f"Let's find awesome villa!", reply_markup=inline.get_started())
+        action = 1
+        language = await lang(tg_id)
+        text = await get_text(action, language)
+
+        await msg.answer(text=f'{name}, {text}', reply_markup=inline.get_started(language))
     else:
         await msg.answer(f'{name}, you are not registered, you need to login to start using the bot',
                          reply_markup=inline.register())

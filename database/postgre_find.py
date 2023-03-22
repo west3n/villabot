@@ -1,5 +1,6 @@
-from database.postgre import cur
+from database.postgre import cur, db
 import re
+from database.postgre_user import status
 
 
 def check_budget(currency_str, budget_str):
@@ -129,3 +130,32 @@ def get_image(unique_id):
         cur.execute("SELECT image FROM appart_image WHERE id=%s", (image,))
         image_link.append(cur.fetchone()[0]),
     return image_link
+
+
+async def get_save_request(user_id):
+    cur.execute("SELECT id FROM appart_saverequest WHERE user_id=%s", (user_id,))
+    result = cur.fetchone()
+    return result
+
+
+async def save_request(tg_id, rental_period_str, currency_str, budget_str,
+                       location_str, accommodation_type_str, amenities_str):
+    request = f'{rental_period_str}/{currency_str}/{budget_str}/{location_str}/{accommodation_type_str}/{amenities_str}'
+    user_id = await status(tg_id)
+    x = await get_save_request(user_id)
+    if x:
+        cur.execute("UPDATE appart_saverequest SET request=%s WHERE user_id=%s AND id=%s", (request, user_id, x[0]))
+        db.commit()
+    if x is None:
+        cur.execute("INSERT INTO appart_saverequest(user_id, request) VALUES (%s, %s)", (user_id, request))
+        db.commit()
+
+
+async def get_request(tg_id):
+    user_id = await status(tg_id)
+    cur.execute("SELECT request FROM appart_saverequest WHERE user_id=%s", (user_id,))
+    result = cur.fetchone()
+    if result:
+        return result[0]
+    else:
+        return None

@@ -3,7 +3,8 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from keyboards.inline import feedback
 from database.postgre_feedback import add_feedback, get_update_history, update_feedback, delete_feedback
-
+from database.postgre_user import lang
+from texts.text import get_text
 
 class Feedback(StatesGroup):
     f_type = State()
@@ -15,17 +16,25 @@ class ContinueFeedback(StatesGroup):
 
 
 async def feedback_type(call: types.CallbackQuery):
+    tg_id = call.from_user.id
     await call.message.delete()
-    await call.message.answer('Choose feedback type:',
-                              reply_markup=feedback())
+    action = 5
+    language = await lang(tg_id)
+    text = await get_text(action, language)
+    await call.message.answer(text=text,
+                              reply_markup=feedback(language))
     await Feedback.f_type.set()
 
 
 async def feedback_text(call: types.CallbackQuery, state: FSMContext):
+    tg_id = call.from_user.id
     async with state.proxy() as data:
         data['f_type'] = call.data
+    action = 6
+    language = await lang(tg_id)
+    text = await get_text(action, language)
     await call.message.delete()
-    await call.message.answer('Write text message for admin:')
+    await call.message.answer(text=text)
     await Feedback.next()
 
 
@@ -34,24 +43,37 @@ async def feedback_finish(msg: types.Message, state: FSMContext):
         data['text'] = msg.text
     tg_id = msg.from_id
     try:
+        action = 7
+        language = await lang(tg_id)
+        text = await get_text(action, language)
         await add_feedback(tg_id, data)
-        await msg.answer('Your feedback has been sent! Wait for a response from the administrator.')
+        await msg.answer(text=text)
     except:
-        await msg.answer('You have an open question, please wait for an answer')
+        action = 8
+        language = await lang(tg_id)
+        text = await get_text(action, language)
+        await msg.answer(text=text)
     await state.finish()
 
 
 async def feedback_continue(call: types.CallbackQuery):
     await call.message.edit_reply_markup()
-    await call.message.answer('Write text message for admin:')
+    tg_id = call.from_user.id
+    action = 6
+    language = await lang(tg_id)
+    text = await get_text(action, language)
+    await call.message.answer(text=text)
     await ContinueFeedback.text.set()
 
 
 async def feedback_continue_step2(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['text'] = msg.text
-    await msg.answer('Your feedback has been sent! Wait for a response from the administrator.')
     tg_id = msg.from_id
+    action = 7
+    language = await lang(tg_id)
+    text = await get_text(action, language)
+    await msg.answer(text=text)
     history = await get_update_history(tg_id)
     await update_feedback(tg_id, history, data)
 
@@ -60,9 +82,12 @@ async def feedback_continue_step2(msg: types.Message, state: FSMContext):
 
 async def feedback_delete(call: types.CallbackQuery):
     tg_id = call.from_user.id
+    action = 9
+    language = await lang(tg_id)
+    text = await get_text(action, language)
     await call.message.edit_reply_markup()
     await delete_feedback(tg_id)
-    await call.message.answer('You finish chat with admin!')
+    await call.message.answer(text=text)
 
 
 def register(dp: Dispatcher):

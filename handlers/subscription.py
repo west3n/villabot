@@ -32,10 +32,16 @@ async def apartment_contacts_favorites(call: types.CallbackQuery):
         unique_id = int(call.data.split("_")[2])
         cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
         contact = cur.fetchone()
-        await call.message.reply(
-            f"<b>Agent name:</b> {contact[0]}\n"
-            f"<b>Link to WhatsApp:</b> {contact[1]}"
-        )
+        if language in ["EN", "IN"]:
+            await call.message.reply(
+                f"<b>Agent name:</b> {contact[0]}\n"
+                f"<b>Link to WhatsApp:</b> {contact[1]}"
+            )
+        elif language == "RU":
+            await call.message.reply(
+                f"<b>Имя агента:</b> {contact[0]}\n"
+                f"<b>Ссылка в WhatsApp:</b> {contact[1]}"
+            )
     else:
         await call.message.reply("Do you like this variant? If you want to contact the renter please turn on "
                                  "the subscription for our service for one month",
@@ -64,7 +70,7 @@ async def turn_on_subscription(call: types.CallbackQuery):
     await call.message.edit_reply_markup()
     tg_id = call.from_user.id
     await database.postgre_user.subscribe_activity(tg_id)
-    await call.message.answer("Subscription activated!")
+    await call.message.answer(text=text)
 
 
 def register(dp: Dispatcher):
