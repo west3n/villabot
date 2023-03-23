@@ -115,7 +115,7 @@ def get_apart(rental_period_str, currency_str, budget_str, location_str, accommo
         )
         aps = cur.fetchall()
         matching_aps = []
-        for n in range(0, count):
+        for n in range(0, count + 1):
             compare = all(element in aps[n][6].split(",") for element in amenities)
             if compare:
                 matching_aps.append(aps[n])
@@ -159,6 +159,7 @@ async def get_request(tg_id):
         return result[0]
     else:
         return None
+
 
 def get_last_id():
     cur.execute("SELECT MAX(id) FROM appart_apartment")
