@@ -70,8 +70,6 @@ async def currency(call: types.CallbackQuery, state: FSMContext):
 
 
 async def budget(call: types.CallbackQuery, state: FSMContext):
-    state_data = await state.get_data()
-    print(state_data)
     if call.data == 'back':
         await state.reset_state()
         await call.message.edit_reply_markup()
