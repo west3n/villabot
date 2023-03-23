@@ -303,14 +303,14 @@ def searching_2(lang) -> InlineKeyboardMarkup:
 def apartment_contacts(ap, lang) -> InlineKeyboardMarkup:
     if lang in ['EN', 'IN']:
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton('See contacts', callback_data=f'contact_{ap[0]}'),
-             InlineKeyboardButton('Save to favourites', callback_data=f'save_{ap[0]}')]
+            [InlineKeyboardButton('See contacts', callback_data=f'contact_{ap}'),
+             InlineKeyboardButton('Save to favourites', callback_data=f'save_{ap}')]
         ])
         return kb
     elif lang == 'RU':
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton('Посмотреть контакты', callback_data=f'contact_{ap[0]}'),
-             InlineKeyboardButton('Сохранить в избранное', callback_data=f'save_{ap[0]}')]
+            [InlineKeyboardButton('Посмотреть контакты', callback_data=f'contact_{ap}'),
+             InlineKeyboardButton('Сохранить в избранное', callback_data=f'save_{ap}')]
         ])
         return kb
 
@@ -318,12 +318,12 @@ def apartment_contacts(ap, lang) -> InlineKeyboardMarkup:
 def contacts(ap, lang) -> InlineKeyboardMarkup:
     if lang in ['EN', 'IN']:
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton('See contacts', callback_data=f'contact_{ap[0]}')]
+            [InlineKeyboardButton('See contacts', callback_data=f'contact_{ap}')]
         ])
         return kb
     elif lang == 'RU':
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton('Посмотреть контакты', callback_data=f'contact_{ap[0]}')]
+            [InlineKeyboardButton('Посмотреть контакты', callback_data=f'contact_{ap}')]
         ])
         return kb
 
@@ -331,12 +331,12 @@ def contacts(ap, lang) -> InlineKeyboardMarkup:
 def contacts_favorites(ap, lang) -> InlineKeyboardMarkup:
     if lang in ['EN', 'IN']:
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton('See contacts', callback_data=f'contact_favorites_{ap[0]}')]
+            [InlineKeyboardButton('See contacts', callback_data=f'contact_favorites_{ap}')]
         ])
         return kb
     elif lang == 'RU':
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton('Посмотреть контакты', callback_data=f'contact_favorites_{ap[0]}')]
+            [InlineKeyboardButton('Посмотреть контакты', callback_data=f'contact_favorites_{ap}')]
         ])
         return kb
 
@@ -344,12 +344,12 @@ def contacts_favorites(ap, lang) -> InlineKeyboardMarkup:
 def favorites(ap, lang) -> InlineKeyboardMarkup:
     if lang in ['EN', 'IN']:
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton('Save to favourites', callback_data=f'save_{ap[0]}')]
+            [InlineKeyboardButton('Save to favourites', callback_data=f'save_{ap}')]
         ])
         return kb
     elif lang == 'RU':
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton('Сохранить в избранное', callback_data=f'save_{ap[0]}')]
+            [InlineKeyboardButton('Сохранить в избранное', callback_data=f'save_{ap}')]
         ])
         return kb
 

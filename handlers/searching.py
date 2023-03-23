@@ -138,7 +138,7 @@ async def budget_handler(call: types.CallbackQuery, state: FSMContext):
 
 async def budget_done_handler(call: types.CallbackQuery, state: FSMContext):
     state_data = await state.get_data()
-    print(state_data)
+
     if call.data == 'back':
         await state.set_state(Searching.rental_period.state)
         language = await lang(call.from_user.id)
@@ -207,10 +207,10 @@ async def location_handler(call: types.CallbackQuery, state: FSMContext):
 
 async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
     state_data = await state.get_data()
-    print(state_data)
+
     async with state.proxy() as data:
         currency_data = data['currency']
-        print(currency_data)
+
     if call.data == 'back':
         await state.update_data({'selected_options': []})
         await state.set_state(Searching.currency.state)
@@ -442,7 +442,6 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
         await Searching.next()
     else:
         state_data = await state.get_data()
-        print(state_data)
         async with state.proxy() as data:
             rental_period_str = data.get('rental_period')
             currency_str = data.get('currency')

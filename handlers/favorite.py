@@ -51,16 +51,30 @@ async def show_favorite(call: types.CallbackQuery):
                     media.append(types.InputMediaPhoto(media=photo, caption=caption))
             text_message = await call.bot.send_media_group(chat_id=call.message.chat.id,
                                                            media=media)
-            await call.bot.send_message(chat_id=call.message.chat.id,
-                                        text=f'<b>Type:</b> {ap_type}\n'
-                                             f'<b>Location</b>: {location}\n'
-                                             f'<b>Amenities:</b> {ap[6]}\n'
-                                             f'<b>Rent period:</b> {ap[7]}\n'
-                                             f'<b>Price Rupee:</b> {format_number(ap[8])}\n'
-                                             f'<b>Price USD:</b> {ap[9]}$\n'
-                                             f'<b>Description:</b> {ap[10]}',
-                                        reply_to_message_id=text_message[0].message_id,
-                                        reply_markup=contacts_favorites(str(ap[0]), language))
+            if language in ['EN', 'IN']:
+                await call.bot.send_message(chat_id=call.message.chat.id,
+                                            text=f'<b>Unique ID:</b> {ap[0]}\n'
+                                                 f'<b>Type:</b> {ap_type}\n'
+                                                 f'<b>Location</b>: {location}\n'
+                                                 f'<b>Amenities:</b> {ap[6]}\n'
+                                                 f'<b>Rent period:</b> {ap[7]}\n'
+                                                 f'<b>Price Rupee:</b> {format_number(ap[8])}\n'
+                                                 f'<b>Price USD:</b> {ap[9]}$\n'
+                                                 f'<b>Description:</b> {ap[10]}',
+                                            reply_to_message_id=text_message[0].message_id,
+                                            reply_markup=contacts_favorites(str(ap[0]), language))
+            elif language == 'RU':
+                await call.bot.send_message(chat_id=call.message.chat.id,
+                                            text=f'<b>Уникальный ID:</b> {ap[0]}\n'
+                                                 f'<b>Тип недвижимости:</b> {ap_type}\n'
+                                                 f'<b>Локация</b>: {location}\n'
+                                                 f'<b>Удобства:</b> {ap[6]}\n'
+                                                 f'<b>Период:</b> {ap[7]}\n'
+                                                 f'<b>Цена в рупиях:</b> {format_number(ap[8])}\n'
+                                                 f'<b>Цена в долларах:</b> {ap[9]}$\n'
+                                                 f'<b>Описание:</b> {ap[10]}',
+                                            reply_to_message_id=text_message[0].message_id,
+                                            reply_markup=contacts_favorites(str(ap[0]), language))
 
     if not aps:
         action = 3
