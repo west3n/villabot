@@ -6,9 +6,11 @@ from database.postgre_user import status, update_activity
 from keyboards import inline
 from database.postgre_user import lang
 from texts.text import get_text
+from database.postgre_statistic import command_start_stat
 
 
 async def bot_start(msg: types.Message, state: FSMContext):
+    command_start_stat()
     await state.finish()
     tg_id = int(msg.from_id)
     user = await status(tg_id)

@@ -77,7 +77,7 @@ async def request_searching(call: types.CallbackQuery):
         location_id = ap[11]
         location = get_location_name(location_id)[0]
         image = get_image(ap[0])
-        photo_files = [os.path.join('/Users/caramba/PycharmProject/BaliAdmin', f) for f in image]
+        photo_files = [os.path.join('/projects/Django/BaliAdmin', f) for f in image]
         media = []
         with open(photo_files[0], "rb") as f:
             photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])

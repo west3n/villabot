@@ -5,6 +5,7 @@ from keyboards.inline import language
 from keyboards.reply import register_cancel, remove, contact
 from database.postgre_user import add_user, status, update_user, lang
 import datetime
+from database.postgre_statistic import unique_user_stat
 
 
 class Registration(StatesGroup):
@@ -74,6 +75,7 @@ async def registration_finish(call: types.CallbackQuery, state: FSMContext):
     else:
         await add_user(username, tg_id, start_register, last_activity, data, last_name)
         await state.finish()
+        unique_user_stat()
         await call.message.answer(f'Registration complete! Please, press command /start', reply_markup=remove)
 
 

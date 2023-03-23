@@ -1,17 +1,18 @@
 from aiogram import Dispatcher, types
 
-import database.postgre_user
 from database.postgre import db, cur
 from database.postgre_find import get_last_id
-from database.postgre_user import status, lang
+from database.postgre_user import status, lang, check_subscribe_status, subscribe_activity
+from database.postgre_statistic import command_contact_stat, command_payment_stat
 from psycopg2.errors import UniqueViolation, InFailedSqlTransaction
 from keyboards import inline
 from texts.text import get_text
 
 
 async def apartment_contacts(call: types.CallbackQuery):
+    command_contact_stat()
     tg_id = call.from_user.id
-    subscription_status = await database.postgre_user.check_subscribe_status(tg_id)
+    subscription_status = await check_subscribe_status(tg_id)
     language = await lang(call.from_user.id)
     if subscription_status[0]:
         unique_id = int(call.data.split("_")[1])
@@ -34,9 +35,10 @@ async def apartment_contacts(call: types.CallbackQuery):
 
 
 async def apartment_contacts_favorites(call: types.CallbackQuery):
+    command_contact_stat()
     await call.message.edit_reply_markup()
     tg_id = call.from_user.id
-    subscription_status = await database.postgre_user.check_subscribe_status(tg_id)
+    subscription_status = await check_subscribe_status(tg_id)
     language = await lang(call.from_user.id)
     if subscription_status[0]:
         unique_id = int(call.data.split("_")[2])
@@ -81,11 +83,12 @@ async def save_to_favorites(call: types.CallbackQuery):
 
 
 async def turn_on_subscription(call: types.CallbackQuery):
+    command_payment_stat()
     await call.message.edit_reply_markup()
     tg_id = call.from_user.id
     language = await lang(call.from_user.id)
     text = await get_text(22, language)
-    await database.postgre_user.subscribe_activity(tg_id)
+    await subscribe_activity(tg_id)
     await call.message.answer(text=text)
 
 

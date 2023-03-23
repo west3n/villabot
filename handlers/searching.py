@@ -492,7 +492,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
                 location_id = ap[11]
                 location = get_location_name(location_id)[0]
                 image = get_image(ap[0])
-                photo_files = [os.path.join('/Users/caramba/PycharmProject/BaliAdmin', f) for f in image]
+                photo_files = [os.path.join('/projects/Django/BaliAdmin', f) for f in image]
                 media = []
                 with open(photo_files[0], "rb") as f:
                     photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])
@@ -500,7 +500,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
                               f'<b>Location</b>: {location}\n' \
                               f'<b>Amenities:</b> {ap[6]}\n' \
                               f'<b>Rent period:</b> {ap[7]}\n' \
-                              f'<b>Price Rupee:</b> {ap[8]}\n' \
+                              f'<b>Price Rupee:</b> {format_number(ap[8])}\n' \
                               f'<b>Price USD:</b> {ap[9]}\n' \
                               f'<b>Description:</b> {ap[10]}'
                     media.append(types.InputMediaPhoto(media=photo, caption=caption))
