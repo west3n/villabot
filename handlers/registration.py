@@ -2,7 +2,7 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from keyboards.inline import language
-from keyboards.reply import cancel, remove, contact
+from keyboards.reply import register_cancel, remove, contact
 from database.postgre_user import add_user, status, update_user, lang
 import datetime
 
@@ -16,16 +16,14 @@ class Registration(StatesGroup):
 
 async def registration_step_1(call: types.CallbackQuery):
     await call.message.delete()
-    lan = await lang(call.from_user.id)
-    await call.message.answer(f'Enter your Name:', reply_markup=cancel(lan))
+    await call.message.answer(f'Enter your Name:', reply_markup=register_cancel())
     await Registration.first_name.set()
 
 
 async def registration_step_3(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['first_name'] = msg.text
-    lan = await lang(msg.from_user.id)
-    await msg.answer(f'Please send your contact or write your phone number', reply_markup=contact(lan))
+    await msg.answer(f'Please send your contact or write your phone number', reply_markup=contact())
     await Registration.next()
 
 

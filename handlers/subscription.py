@@ -2,6 +2,7 @@ from aiogram import Dispatcher, types
 
 import database.postgre_user
 from database.postgre import db, cur
+from database.postgre_find import get_last_id
 from database.postgre_user import status, lang
 from psycopg2.errors import UniqueViolation, InFailedSqlTransaction
 from keyboards import inline
@@ -90,9 +91,8 @@ async def turn_on_subscription(call: types.CallbackQuery):
 
 def register(dp: Dispatcher):
     try:
-        cur.execute("SELECT id FROM appart_apartment")
-        count = cur.fetchone()[0]
-        for n in range(0, int(count) + 10):
+        count = get_last_id()
+        for n in range(0, int(count) + 1):
             dp.register_callback_query_handler(apartment_contacts, text=f'contact_{n}')
             dp.register_callback_query_handler(apartment_contacts_favorites, text=f'contact_favorites_{n}')
             dp.register_callback_query_handler(save_to_favorites, text=f"save_{n}")

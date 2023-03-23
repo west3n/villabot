@@ -286,7 +286,6 @@ async def accommodation_type_handler(call: types.CallbackQuery, state: FSMContex
 
 async def accommodation_type_done_handler(call: types.CallbackQuery, state: FSMContext):
     state_data = await state.get_data()
-    print(state_data)
     if call.data == 'back':
         await state.set_state(Searching.budget.state)
         await state.update_data({'selected_options': []})
@@ -356,7 +355,6 @@ async def amenities_handler(call: types.CallbackQuery, state: FSMContext):
 
 async def amenities_done_handler(call: types.CallbackQuery, state: FSMContext):
     state_data = await state.get_data()
-    print(state_data)
     if call.data == 'back':
         await state.set_state(Searching.location.state)
         await state.update_data({'selected_options': []})

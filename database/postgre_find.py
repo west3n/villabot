@@ -1,6 +1,7 @@
 from database.postgre import cur, db
 import re
 from database.postgre_user import status
+import asyncio
 
 
 def check_budget(currency_str, budget_str):
@@ -84,8 +85,7 @@ def get_apart(rental_period_str, currency_str, budget_str, location_str, accommo
     location_hold = ','.join(['%s'] * len(location_id))
     amenities = amenities_str.split(',')
     amenities = [amenity.strip() for amenity in amenities]
-    cur.execute("SELECT id FROM appart_apartment")
-    count = len(cur.fetchall())
+    count = get_last_id()
     if aps_type == ['']:
         aps_type = ["VI", "RO", "AP", "GH"]
         aps_hold = ','.join(['%s'] * len(aps_type))
@@ -159,3 +159,11 @@ async def get_request(tg_id):
         return result[0]
     else:
         return None
+
+def get_last_id():
+    cur.execute("SELECT MAX(id) FROM appart_apartment")
+    result = cur.fetchone()
+    if result:
+        return result[0]
+    else:
+        return 0
