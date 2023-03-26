@@ -405,3 +405,16 @@ def request(lang) -> InlineKeyboardMarkup:
             [InlineKeyboardButton('Загрузить объявления', callback_data='request_searching')]
         ])
         return kb
+
+
+def agent_link(url, lang) -> InlineKeyboardMarkup:
+    if lang in ['EN', 'IN']:
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(f'Go to WhatsApp link', url=url)]
+        ])
+        return kb
+    elif lang == 'RU':
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(f'Перейти по ссылке WhatsApp', url=url)]
+        ])
+        return kb

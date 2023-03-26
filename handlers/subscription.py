@@ -20,13 +20,11 @@ async def apartment_contacts(call: types.CallbackQuery):
         contact = cur.fetchone()
         if language in ["EN", "IN"]:
             await call.message.reply(
-                f"<b>Agent name:</b> {contact[0]}\n"
-                f"<b>Link to WhatsApp:</b> {contact[1]}"
+                f"<b>Agent name:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
             )
         elif language == "RU":
             await call.message.reply(
-                f"<b>Имя агента:</b> {contact[0]}\n"
-                f"<b>Ссылка в WhatsApp:</b> {contact[1]}"
+                f"<b>Имя агента:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
             )
     else:
         text = await get_text(19, language)
@@ -46,13 +44,11 @@ async def apartment_contacts_favorites(call: types.CallbackQuery):
         contact = cur.fetchone()
         if language in ["EN", "IN"]:
             await call.message.reply(
-                f"<b>Agent name:</b> {contact[0]}\n"
-                f"<b>Link to WhatsApp:</b> {contact[1]}"
+                f"<b>Agent name:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
             )
         elif language == "RU":
             await call.message.reply(
-                f"<b>Имя агента:</b> {contact[0]}\n"
-                f"<b>Ссылка в WhatsApp:</b> {contact[1]}"
+                f"<b>Имя агента:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
             )
     else:
         text = await get_text(19, language)
@@ -68,7 +64,7 @@ async def save_to_favorites(call: types.CallbackQuery):
     tg_id = call.from_user.id
     try:
         user_id = await status(tg_id)
-        cur.execute("INSERT INTO appart_saveaps (apart_id, user_id) VALUES (%s, %s)", (id_data, user_id,))
+        cur.execute("INSERT INTO appart_saveap (apart_id, user_id) VALUES (%s, %s)", (id_data, user_id,))
         db.commit()
         text = await get_text(20, language)
         await call.answer(text)

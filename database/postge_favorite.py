@@ -5,7 +5,7 @@ from database.postgre_user import status
 async def get_favorite(tg_id):
     user_id = await status(tg_id)
 
-    cur.execute("SELECT apart_id FROM appart_saveaps WHERE user_id=%s", (user_id,))
+    cur.execute("SELECT apart_id FROM appart_saveap WHERE user_id=%s", (user_id,))
     query = cur.fetchall()
 
     result = []
