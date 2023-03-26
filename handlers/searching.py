@@ -10,7 +10,7 @@ from aiogram.types import InlineKeyboardButton
 from database.postgre_find import get_apart, get_location_name, get_image, save_request
 from database.postgre_user import lang
 from texts.text import get_text
-
+from database.postgre_statistic import find_stat, search_stat
 from keyboards import inline
 
 
@@ -35,6 +35,7 @@ async def cmd_cancel(call: types.CallbackQuery, state: FSMContext):
 
 
 async def rental_period(call: types.CallbackQuery):
+    find_stat()
     await call.message.edit_reply_markup()
     language = await lang(call.from_user.id)
     action = 10
@@ -461,6 +462,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
             await call.answer(text=text,
                               show_alert=True)
         elif call.data == 'searching':
+            search_stat()
             language = await lang(call.from_user.id)
             action = 18
             text = await get_text(action, language)
@@ -490,7 +492,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
                 location_id = ap[11]
                 location = get_location_name(location_id)[0]
                 image = get_image(ap[0])
-                photo_files = [os.path.join('/projects/Django/BaliAdmin', f) for f in image]
+                photo_files = [os.path.join('/Users/caramba/PycharmProject/BaliAdmin', f) for f in image]
                 media = []
                 with open(photo_files[0], "rb") as f:
                     photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])

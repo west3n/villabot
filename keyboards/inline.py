@@ -383,7 +383,8 @@ def feedback(lang) -> InlineKeyboardMarkup:
     elif lang == 'RU':
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton('Проблемы в работе бота', callback_data='Problems with the bot')],
-            [InlineKeyboardButton('Недостоверная информация в предложениях', callback_data='False information in offers')],
+            [InlineKeyboardButton('Недостоверная информация в предложениях',
+                                  callback_data='False information in offers')],
             [InlineKeyboardButton('Связь с владельцем объявления',
                                   callback_data='Communication with the owner of the ad')],
             [InlineKeyboardButton('Другое', callback_data='Other')],
