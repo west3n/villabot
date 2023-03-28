@@ -1,5 +1,5 @@
 from aiogram import Dispatcher, types
-
+from decouple import config
 from database.postgre import db, cur
 from database.postgre_find import get_last_id
 from database.postgre_user import status, lang, check_subscribe_status, subscribe_activity
@@ -9,6 +9,9 @@ from keyboards import inline
 from texts.text import get_text
 
 
+pay_token = config("PAY_TOKEN")
+
+
 async def apartment_contacts(call: types.CallbackQuery):
     contact_stat()
     tg_id = call.from_user.id
@@ -16,7 +19,6 @@ async def apartment_contacts(call: types.CallbackQuery):
     language = await lang(call.from_user.id)
     #if subscription_status[0]:
     unique_id = int(call.data.split("_")[1])
-    print(unique_id)
     apartment_contacts_amount(unique_id)
     cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
     contact = cur.fetchone()

@@ -105,7 +105,7 @@ def apartment_favorites_amount(apart_id):
 
 def apartment_contacts_amount(apart_id):
     cur.execute("""
-            INSERT INTO statistic_apartstatistic (contact, apart_id)
+            INSERT INTO statistic_apartstatistic (apart_id, contact)
             VALUES (%s, COALESCE((SELECT contact FROM statistic_apartstatistic WHERE apart_id=%s), 0) + 1)
             ON CONFLICT (apart_id) DO UPDATE SET contact = COALESCE(statistic_apartstatistic.contact, 0) + 1
         """, (apart_id, apart_id))
