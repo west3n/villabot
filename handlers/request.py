@@ -8,6 +8,7 @@ from handlers.searching import format_number
 from keyboards import inline
 from database.postgre_user import lang
 from texts.text import get_text
+from database.postgre_statistic import apartment_views_amount
 
 
 async def get_request_(call: types.CallbackQuery):
@@ -95,6 +96,7 @@ async def request_searching(call: types.CallbackQuery):
                 media.append(types.InputMediaPhoto(media=photo, caption=caption))
         text_message = await call.bot.send_media_group(chat_id=call.message.chat.id,
                                                        media=media)
+        apartment_views_amount(int(ap[0]))
         if language in ['EN', 'IN']:
             await call.bot.send_message(chat_id=call.message.chat.id,
                                         text=f'<b>Unique ID:</b> {ap[0]}\n'

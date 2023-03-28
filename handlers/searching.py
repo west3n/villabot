@@ -10,7 +10,7 @@ from aiogram.types import InlineKeyboardButton
 from database.postgre_find import get_apart, get_location_name, get_image, save_request
 from database.postgre_user import lang
 from texts.text import get_text
-from database.postgre_statistic import find_stat, search_stat
+from database.postgre_statistic import find_stat, search_stat, apartment_views_amount
 from keyboards import inline
 
 
@@ -511,6 +511,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
                 text_message = await call.bot.send_media_group(chat_id=call.message.chat.id,
                                                                media=media)
                 language = await lang(call.from_user.id)
+                apartment_views_amount(int(ap[0]))
                 if language in ['EN', 'IN']:
                     await call.bot.send_message(chat_id=call.message.chat.id,
                                                 text=f'<b>Unique ID:</b> {ap[0]}\n'
