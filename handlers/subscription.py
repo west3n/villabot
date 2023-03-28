@@ -14,23 +14,24 @@ async def apartment_contacts(call: types.CallbackQuery):
     tg_id = call.from_user.id
     subscription_status = await check_subscribe_status(tg_id)
     language = await lang(call.from_user.id)
-    if subscription_status[0]:
-        unique_id = int(call.data.split("_")[1])
-        apartment_contacts_amount(unique_id)
-        cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
-        contact = cur.fetchone()
-        if language in ["EN", "IN"]:
-            await call.message.reply(
-                f"<b>Agent name:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
-            )
-        elif language == "RU":
-            await call.message.reply(
-                f"<b>Имя агента:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
-            )
-    else:
-        text = await get_text(19, language)
-        await call.message.reply(text,
-                                 reply_markup=inline.subscribe(language))
+    #if subscription_status[0]:
+    unique_id = int(call.data.split("_")[1])
+    print(unique_id)
+    apartment_contacts_amount(unique_id)
+    cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
+    contact = cur.fetchone()
+    if language in ["EN", "IN"]:
+        await call.message.reply(
+            f"<b>Agent name:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
+        )
+    elif language == "RU":
+        await call.message.reply(
+            f"<b>Имя агента:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
+        )
+    #else:
+        #text = await get_text(19, language)
+        #await call.message.reply(text,
+                                 #reply_markup=inline.subscribe(language))
 
 
 async def apartment_contacts_favorites(call: types.CallbackQuery):
@@ -39,23 +40,23 @@ async def apartment_contacts_favorites(call: types.CallbackQuery):
     tg_id = call.from_user.id
     subscription_status = await check_subscribe_status(tg_id)
     language = await lang(call.from_user.id)
-    if subscription_status[0]:
-        unique_id = int(call.data.split("_")[2])
-        apartment_contacts_amount(unique_id)
-        cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
-        contact = cur.fetchone()
-        if language in ["EN", "IN"]:
-            await call.message.reply(
-                f"<b>Agent name:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
-            )
-        elif language == "RU":
-            await call.message.reply(
-                f"<b>Имя агента:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
-            )
-    else:
-        text = await get_text(19, language)
-        await call.message.reply(text=text,
-                                 reply_markup=inline.subscribe(language))
+    #if subscription_status[0]:
+    unique_id = int(call.data.split("_")[2])
+    apartment_contacts_amount(unique_id)
+    cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
+    contact = cur.fetchone()
+    if language in ["EN", "IN"]:
+        await call.message.reply(
+            f"<b>Agent name:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
+        )
+    elif language == "RU":
+        await call.message.reply(
+            f"<b>Имя агента:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
+        )
+    #else:
+        #text = await get_text(19, language)
+        #await call.message.reply(text=text,
+                                 #reply_markup=inline.subscribe(language))
 
 
 async def save_to_favorites(call: types.CallbackQuery):
@@ -84,11 +85,18 @@ async def save_to_favorites(call: types.CallbackQuery):
 async def turn_on_subscription(call: types.CallbackQuery):
     subscribe_stat()
     await call.message.edit_reply_markup()
-    tg_id = call.from_user.id
-    language = await lang(call.from_user.id)
-    text = await get_text(22, language)
-    await subscribe_activity(tg_id)
-    await call.message.answer(text=text)
+    prices = [
+        types.LabeledPrice(label='Monthly subscription', amount=10),
+    ]
+    await call.bot.send_invoice(
+        chat_id=call.message.chat.id,
+        title='Monthly subscription',
+        description="To pay, click on the button below",
+        provider_token=pay_token,
+        currency='USD',
+        prices=prices,
+        payload='PAYMENT_PAYLOAD'
+    )
 
 
 def register(dp: Dispatcher):
