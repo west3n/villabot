@@ -80,3 +80,33 @@ def search_stat():
             ON CONFLICT (date) DO UPDATE SET search = COALESCE(statistic_commonstatistic.search, 0) + 1
         """, (now, now))
     db.commit()
+
+
+def apartment_views_amount(apart_id):
+    now = datetime.now()
+    cur.execute("""
+            INSERT INTO statistic_apartstatistic (find_date, views, apart_id)
+            VALUES (%s, COALESCE((SELECT views FROM statistic_apartstatistic WHERE apart_id=%s), 0) + 1, %s)
+            ON CONFLICT (apart_id) DO UPDATE SET views = COALESCE(statistic_apartstatistic.views, 0) + 1, find_date = %s
+        """, (now, apart_id, apart_id, now))
+    db.commit()
+
+
+def apartment_favorites_amount(apart_id):
+    now = datetime.now()
+    cur.execute("""
+            INSERT INTO statistic_apartstatistic (favorite_date, favorite, apart_id)
+            VALUES (%s, COALESCE((SELECT favorite FROM statistic_apartstatistic WHERE apart_id=%s), 0) + 1, %s)
+            ON CONFLICT (apart_id) DO UPDATE SET favorite = COALESCE(statistic_apartstatistic.favorite, 0) + 1, 
+            favorite_date = %s
+        """, (now, apart_id, apart_id, now))
+    db.commit()
+
+
+def apartment_contacts_amount(apart_id):
+    cur.execute("""
+            INSERT INTO statistic_apartstatistic (contact, apart_id)
+            VALUES (%s, COALESCE((SELECT contact FROM statistic_apartstatistic WHERE apart_id=%s), 0) + 1)
+            ON CONFLICT (apart_id) DO UPDATE SET contact = COALESCE(statistic_apartstatistic.contact, 0) + 1
+        """, (apart_id, apart_id))
+    db.commit()

@@ -3,7 +3,7 @@ from aiogram import Dispatcher, types
 from database.postgre import db, cur
 from database.postgre_find import get_last_id
 from database.postgre_user import status, lang, check_subscribe_status, subscribe_activity
-from database.postgre_statistic import contact_stat, subscribe_stat
+from database.postgre_statistic import contact_stat, subscribe_stat, apartment_favorites_amount, apartment_contacts_amount
 from psycopg2.errors import UniqueViolation, InFailedSqlTransaction
 from keyboards import inline
 from texts.text import get_text
@@ -16,6 +16,7 @@ async def apartment_contacts(call: types.CallbackQuery):
     language = await lang(call.from_user.id)
     if subscription_status[0]:
         unique_id = int(call.data.split("_")[1])
+        apartment_contacts_amount(unique_id)
         cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
         contact = cur.fetchone()
         if language in ["EN", "IN"]:
@@ -40,6 +41,7 @@ async def apartment_contacts_favorites(call: types.CallbackQuery):
     language = await lang(call.from_user.id)
     if subscription_status[0]:
         unique_id = int(call.data.split("_")[2])
+        apartment_contacts_amount(unique_id)
         cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
         contact = cur.fetchone()
         if language in ["EN", "IN"]:
@@ -66,6 +68,7 @@ async def save_to_favorites(call: types.CallbackQuery):
         user_id = await status(tg_id)
         cur.execute("INSERT INTO appart_saveap (apart_id, user_id) VALUES (%s, %s)", (id_data, user_id,))
         db.commit()
+        apartment_favorites_amount(id_data)
         text = await get_text(20, language)
         await call.answer(text)
     except UniqueViolation:
