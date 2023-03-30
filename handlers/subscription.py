@@ -9,7 +9,7 @@ from keyboards import inline
 from texts.text import get_text
 
 
-pay_token = config("PAY_TOKEN")
+# pay_token = config("PAY_TOKEN")
 
 
 async def apartment_contacts(call: types.CallbackQuery):

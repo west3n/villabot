@@ -18,3 +18,7 @@ setuptools==67.6.0
 typing-extensions==4.5.0
 wheel==0.40.0
 yarl==1.8.2
+
+psycopg2~=2.9.5
+gspread~=5.7.2
+oauth2client~=4.1.3

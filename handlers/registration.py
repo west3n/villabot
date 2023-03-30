@@ -4,8 +4,12 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from keyboards.inline import language
 from keyboards.reply import register_cancel, remove, contact
 from database.postgre_user import add_user, status, update_user, lang
-import datetime
 from database.postgre_statistic import start_register_stat, finish_register_stat
+from decouple import config
+from oauth2client.service_account import ServiceAccountCredentials
+
+import gspread
+import datetime
 
 
 class Registration(StatesGroup):
@@ -15,8 +19,18 @@ class Registration(StatesGroup):
     phone = State()
 
 
+sheet_url = config("SHEET_URL")
+credentials_path = "json/villabot-382008-e3b439d175c9.json"
+scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+credentials = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
+gc = gspread.authorize(credentials)
+sh = gc.open_by_url(sheet_url)
+worksheet = sh.worksheet('Users')
+
+
 async def registration_step_1(call: types.CallbackQuery):
     start_register_stat()
+    tg_id = call.from_user.id
     await call.message.delete()
     await call.message.answer(f'Enter your Name:', reply_markup=register_cancel())
     await Registration.first_name.set()
@@ -69,21 +83,39 @@ async def registration_finish(call: types.CallbackQuery, state: FSMContext):
     start_register = datetime.datetime.now()
     last_activity = start_register
     stat = await status(tg_id)
+    cell_list = worksheet.findall(str(tg_id), in_column=1)
     if stat:
         await state.finish()
         await call.message.answer(f'Update profile complete! Please, press command /start', reply_markup=remove)
         await update_user(username, tg_id, start_register, last_activity, data, last_name)
+        row_index = cell_list[0].row
+        user_data = [tg_id, username, str(data.get("first_name")), last_name, data.get("contact"),
+                     data.get('lang'), start_register.strftime("%Y-%m-%d %H:%M:%S"),
+                     last_activity.strftime("%Y-%m-%d %H:%M:%S")]
+        for i in range(len(user_data)):
+            worksheet.update_cell(row_index, i + 1, user_data[i])
     else:
         await add_user(username, tg_id, start_register, last_activity, data, last_name)
         await state.finish()
         finish_register_stat()
         await call.message.answer(f'Registration complete! Please, press command /start', reply_markup=remove)
+        user_data = [tg_id, username, str(data.get("first_name")), last_name, data.get("contact"),
+                     data.get('lang'), start_register.strftime("%Y-%m-%d %H:%M:%S"),
+                     last_activity.strftime("%Y-%m-%d %H:%M:%S")]
+        worksheet.append_row(user_data)
 
 
 async def cmd_cancel(msg: types.Message, state: FSMContext):
     await msg.delete()
     await state.finish()
     await msg.answer('Action Canceled!', reply_markup=remove)
+
+
+async def sh_update_last_activity(tg_id):
+    cell_list = worksheet.findall(str(tg_id), in_column=1)
+    row_index = cell_list[0].row
+    activity = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    worksheet.update_cell(row_index, 8, activity)
 
 
 def register(dp: Dispatcher):
