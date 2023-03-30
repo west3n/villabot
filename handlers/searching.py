@@ -36,14 +36,24 @@ async def cmd_cancel(call: types.CallbackQuery, state: FSMContext):
 
 async def rental_period(call: types.CallbackQuery):
     find_stat()
-    await call.message.edit_reply_markup()
     language = await lang(call.from_user.id)
     action = 10
     text = await get_text(action, language)
+    await call.message.edit_reply_markup()
     await call.bot.edit_message_text(chat_id=call.message.chat.id,
                                      message_id=call.message.message_id,
                                      text=text,
                                      reply_markup=inline.rental_period(language))
+    await Searching.rental_period.set()
+
+
+async def rental_period_2(message: types.Message):
+    await message.delete()
+    find_stat()
+    language = await lang(message.from_user.id)
+    action = 10
+    text = await get_text(action, language)
+    await message.answer(text, reply_markup=inline.rental_period(language))
     await Searching.rental_period.set()
 
 
@@ -492,7 +502,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
                 location_id = ap[11]
                 location = get_location_name(location_id)[0]
                 image = get_image(ap[0])
-                photo_files = [os.path.join('/Users/caramba/PycharmProject/BaliAdmin', f) for f in image]
+                photo_files = [os.path.join('/projects/Django/BaliAdmin', f) for f in image]
                 media = []
                 with open(photo_files[0], "rb") as f:
                     photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])
@@ -540,6 +550,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
 
 def register(dp: Dispatcher):
     dp.register_callback_query_handler(rental_period, lambda c: c.data == "get_started")
+    dp.register_message_handler(rental_period_2, commands="find", state="*")
     dp.register_callback_query_handler(cmd_cancel, text='cancel', state='*')
     dp.register_callback_query_handler(currency, lambda c: c.data in ('DAY', 'MONTH', 'YEAR', 'back'),
                                        state=Searching.rental_period)

@@ -30,9 +30,15 @@ worksheet = sh.worksheet('Users')
 
 async def registration_step_1(call: types.CallbackQuery):
     start_register_stat()
-    tg_id = call.from_user.id
     await call.message.delete()
     await call.message.answer(f'Enter your Name:', reply_markup=register_cancel())
+    await Registration.first_name.set()
+
+
+async def registration_step_1_2(message: types.Message):
+    start_register_stat()
+    await message.delete()
+    await message.answer(f'Enter your Name:', reply_markup=register_cancel())
     await Registration.first_name.set()
 
 
@@ -120,6 +126,7 @@ async def sh_update_last_activity(tg_id):
 
 def register(dp: Dispatcher):
     dp.register_callback_query_handler(registration_step_1, text='register')
+    dp.register_message_handler(registration_step_1_2, commands='profile', state="*")
     dp.register_message_handler(cmd_cancel, text=['Cancel', 'Отмена'], state='*')
     dp.register_message_handler(registration_step_3, state=Registration.first_name)
     dp.register_message_handler(registration_step_4, content_types=[types.ContentType.TEXT, types.ContentType.CONTACT],
