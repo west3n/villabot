@@ -84,6 +84,27 @@ async def save_to_favorites(call: types.CallbackQuery):
         await call.answer(text=text)
 
 
+async def remove_from_favorites(call: types.CallbackQuery):
+    unique_id = call.data
+    id_data = int(unique_id.split("_")[1])
+    language = await lang(call.from_user.id)
+    tg_id = call.from_user.id
+    try:
+        user_id = await status(tg_id)
+        cur.execute("DELETE FROM appart_saveap WHERE apart_id = %s AND user_id = %s", (id_data, user_id,))
+        db.commit()
+        text = await get_text(22, language)
+        await call.answer(text)
+    except UniqueViolation:
+        db.rollback()
+        text = await get_text(23, language)
+        await call.answer(text=text)
+    except InFailedSqlTransaction:
+        db.rollback()
+        text = await get_text(23, language)
+        await call.answer(text=text)
+
+
 async def turn_on_subscription(call: types.CallbackQuery):
     subscribe_stat()
     await call.message.edit_reply_markup()
@@ -108,6 +129,7 @@ def register(dp: Dispatcher):
             dp.register_callback_query_handler(apartment_contacts, text=f'contact_{n}')
             dp.register_callback_query_handler(apartment_contacts_favorites, text=f'contact_favorites_{n}')
             dp.register_callback_query_handler(save_to_favorites, text=f"save_{n}")
+            dp.register_callback_query_handler(remove_from_favorites, text=f'remove_{n}')
             dp.register_callback_query_handler(turn_on_subscription, text='subscription_on')
     except TypeError as e:
         print(f'Error in register function: {e}')
