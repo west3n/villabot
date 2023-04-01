@@ -521,7 +521,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
                 text_message = await call.bot.send_media_group(chat_id=call.message.chat.id,
                                                                media=media)
                 language = await lang(call.from_user.id)
-                apartment_views_amount(int(ap[0]))
+                apartment_views_amount(int(ap[1]))
                 if language in ['EN', 'IN']:
                     await call.bot.send_message(chat_id=call.message.chat.id,
                                                 text=f'<b>Unique ID:</b> {ap[1]}\n'
