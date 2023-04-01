@@ -331,14 +331,14 @@ def contacts(ap, lang) -> InlineKeyboardMarkup:
 def contacts_favorites(ap, lang) -> InlineKeyboardMarkup:
     if lang in ['EN', 'IN']:
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton('See contacts', callback_data=f'contact_favorites_{ap}')],
-            [InlineKeyboardButton('Remove from favorites', callback_data=f'remove_{ap}')]
+            [InlineKeyboardButton('See contacts', callback_data=f'contact_favorites_{ap}'),
+             InlineKeyboardButton('Remove from favorites', callback_data=f'remove_{ap}')]
         ])
         return kb
     elif lang == 'RU':
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton('Посмотреть контакты', callback_data=f'contact_favorites_{ap}')],
-            [InlineKeyboardButton('Убрать из избранного', callback_data=f'remove_{ap}')]
+            [InlineKeyboardButton('Посмотреть контакты', callback_data=f'contact_favorites_{ap}'),
+             InlineKeyboardButton('Убрать из избранного', callback_data=f'remove_{ap}')]
         ])
         return kb
 

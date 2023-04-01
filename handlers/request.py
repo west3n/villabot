@@ -46,6 +46,41 @@ async def get_request_(call: types.CallbackQuery):
                                   reply_markup=inline.request(language))
 
 
+async def get_request_2(message: types.Message):
+    await message.delete()
+    tg_id = message.from_user.id
+    request = await get_request(tg_id)
+    rental_period = request.split("/")[0]
+    budget = request.split("/")[2]
+    locations = request.split("/")[3]
+    accommodation_types = request.split("/")[4]
+    amenities = request.split("/")[5]
+    language = await lang(tg_id)
+
+    if not budget:
+        budget = budget.replace("", "Whatever")
+    if not accommodation_types:
+        accommodation_types = accommodation_types.replace("", "Whatever")
+    if not amenities:
+        amenities = amenities.replace("", "Whatever")
+    if language == "RU":
+        await message.answer(f"Ваш последний запрос:\n\n"
+                             f"<b>Период:</b> <em>{rental_period}</em>\n"
+                             f"<b>Бюджет:</b> <em>{budget}</em>\n"
+                             f"<b>Локация:</b> <em>{locations}</em>\n"
+                             f"<b>Тип недвижимости:</b> <em>{accommodation_types}</em>\n"
+                             f"<b>Удобства:</b> <em>{amenities}</em>\n",
+                             reply_markup=inline.request(language))
+    elif language == 'EN':
+        await message.answer(f"You last request:\n\n"
+                             f"<b>Rental period:</b> <em>{rental_period}</em>\n"
+                             f"<b>Budget:</b> <em>{budget}</em>\n"
+                             f"<b>Locations:</b> <em>{locations}</em>\n"
+                             f"<b>Accommodation types:</b> <em>{accommodation_types}</em>\n"
+                             f"<b>Amenities:</b> <em>{amenities}</em>\n",
+                             reply_markup=inline.request(language))
+
+
 async def request_searching(call: types.CallbackQuery):
     language = await lang(call.from_user.id)
     text = 'Researching...'
@@ -78,7 +113,7 @@ async def request_searching(call: types.CallbackQuery):
         location_id = ap[13]
         location = get_location_name(location_id)[0]
         image = get_image(ap[1])
-        photo_files = [os.path.join('/Users/caramba/PycharmProject/BaliAdmin', f) for f in image]
+        photo_files = [os.path.join('/projects/Django/BaliAdmin', f) for f in image]
         media = []
         with open(photo_files[0], "rb") as f:
             photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])
@@ -125,4 +160,5 @@ async def request_searching(call: types.CallbackQuery):
 
 def register(dp: Dispatcher):
     dp.register_callback_query_handler(get_request_, text='last_request')
+    dp.register_message_handler(get_request_2, commands='request', state="*")
     dp.register_callback_query_handler(request_searching, text='request_searching')
