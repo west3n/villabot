@@ -75,7 +75,7 @@ async def request_searching(call: types.CallbackQuery):
             ap_type = 'Apartment'
         if ap[5] == 'GH':
             ap_type = 'Guesthouse'
-        location_id = ap[12]
+        location_id = ap[13]
         location = get_location_name(location_id)[0]
         image = get_image(ap[1])
         photo_files = [os.path.join('/Users/caramba/PycharmProject/BaliAdmin', f) for f in image]
