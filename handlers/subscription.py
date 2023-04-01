@@ -84,21 +84,21 @@ async def save_to_favorites(call: types.CallbackQuery):
         await call.answer(text=text)
 
 
-async def turn_on_subscription(call: types.CallbackQuery):
-    subscribe_stat()
-    await call.message.edit_reply_markup()
-    prices = [
-        types.LabeledPrice(label='Monthly subscription', amount=10),
-    ]
-    await call.bot.send_invoice(
-        chat_id=call.message.chat.id,
-        title='Monthly subscription',
-        description="To pay, click on the button below",
-        provider_token=pay_token,
-        currency='USD',
-        prices=prices,
-        payload='PAYMENT_PAYLOAD'
-    )
+#async def turn_on_subscription(call: types.CallbackQuery):
+    #subscribe_stat()
+    #await call.message.edit_reply_markup()
+    #prices = [
+        #types.LabeledPrice(label='Monthly subscription', amount=10),
+    #]
+    #await call.bot.send_invoice(
+        #chat_id=call.message.chat.id,
+        #title='Monthly subscription',
+        #description="To pay, click on the button below",
+        #provider_token=pay_token,
+        #currency='USD',
+        #prices=prices,
+        #payload='PAYMENT_PAYLOAD'
+    #)
 
 
 def register(dp: Dispatcher):
@@ -108,6 +108,6 @@ def register(dp: Dispatcher):
             dp.register_callback_query_handler(apartment_contacts, text=f'contact_{n}')
             dp.register_callback_query_handler(apartment_contacts_favorites, text=f'contact_favorites_{n}')
             dp.register_callback_query_handler(save_to_favorites, text=f"save_{n}")
-            dp.register_callback_query_handler(turn_on_subscription, text='subscription_on')
+            #dp.register_callback_query_handler(turn_on_subscription, text='subscription_on')
     except TypeError as e:
         print(f'Error in register function: {e}')
