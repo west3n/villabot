@@ -90,17 +90,20 @@ async def remove_from_favorites(call: types.CallbackQuery):
     language = await lang(call.from_user.id)
     tg_id = call.from_user.id
     try:
+        await call.message.edit_reply_markup()
         user_id = await status(tg_id)
         cur.execute("DELETE FROM appart_saveap WHERE apart_id = %s AND user_id = %s", (id_data, user_id,))
         db.commit()
-        text = await get_text(22, language)
+        text = await get_text(23, language)
         await call.answer(text)
     except UniqueViolation:
         db.rollback()
+        await call.message.edit_reply_markup()
         text = await get_text(23, language)
         await call.answer(text=text)
     except InFailedSqlTransaction:
         db.rollback()
+        await call.message.edit_reply_markup()
         text = await get_text(23, language)
         await call.answer(text=text)
 
@@ -115,7 +118,7 @@ async def turn_on_subscription(call: types.CallbackQuery):
         chat_id=call.message.chat.id,
         title='Monthly subscription',
         description="To pay, click on the button below",
-        provider_token=pay_token,
+        #provider_token=pay_token,
         currency='USD',
         prices=prices,
         payload='PAYMENT_PAYLOAD'
@@ -124,8 +127,7 @@ async def turn_on_subscription(call: types.CallbackQuery):
 
 def register(dp: Dispatcher):
     try:
-        count = get_last_id()
-        for n in range(0, int(count) + 1):
+        for n in range(0, 1000):
             dp.register_callback_query_handler(apartment_contacts, text=f'contact_{n}')
             dp.register_callback_query_handler(apartment_contacts_favorites, text=f'contact_favorites_{n}')
             dp.register_callback_query_handler(save_to_favorites, text=f"save_{n}")

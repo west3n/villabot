@@ -11,7 +11,6 @@ from handlers.registration import sh_update_last_activity
 
 
 async def bot_start(msg: types.Message, state: FSMContext):
-    await msg.delete()
     await state.finish()
     tg_id = int(msg.from_id)
     user = await status(tg_id)

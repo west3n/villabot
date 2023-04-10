@@ -95,9 +95,13 @@ async def budget(call: types.CallbackQuery, state: FSMContext):
         await Searching.rental_period.set()
     else:
         language = await lang(call.from_user.id)
-        keyboard = inline.show_budget_options(call, language)
+
+
         async with state.proxy() as data:
             data['currency'] = call.data
+        rent = data.get('rental_period')
+        print(rent)
+        keyboard = inline.show_budget_options(call, rent, language)
         await Searching.next()
         action = 12
         text = await get_text(action, language)
@@ -227,11 +231,12 @@ async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
         language = await lang(call.from_user.id)
         action = 12
         text = await get_text(action, language)
+        rent = data.get('rental_period')
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
             text=text,
-            reply_markup=inline.show_budget_options_state(currency_data, language))
+            reply_markup=inline.show_budget_options_state(currency_data, rent, language))
     else:
         async with state.proxy() as data:
             selected_options = data.get('selected_options', [])

@@ -30,7 +30,8 @@ def get_started(lang) -> InlineKeyboardMarkup:
             [InlineKeyboardButton('Show favorites', callback_data='show_favorite'),
              InlineKeyboardButton('Last saved request', callback_data='last_request')],
             [InlineKeyboardButton('Edit profile', callback_data='register'),
-             InlineKeyboardButton('Send feedback', callback_data='feedback')]
+             InlineKeyboardButton('Send feedback', callback_data='feedback')],
+            [InlineKeyboardButton('I am a real estate agent', callback_data='Real estate agent')]
         ])
         return kb
     elif lang == 'RU':
@@ -39,7 +40,8 @@ def get_started(lang) -> InlineKeyboardMarkup:
             [InlineKeyboardButton('Показать избранное', callback_data='show_favorite')],
             [InlineKeyboardButton('Последний сохраненный запрос', callback_data='last_request')],
             [InlineKeyboardButton('Изменить профиль', callback_data='register'),
-             InlineKeyboardButton('Отправить отзыв', callback_data='feedback')]
+             InlineKeyboardButton('Отправить отзыв', callback_data='feedback')],
+            [InlineKeyboardButton('Я агент недвижимости', callback_data='Real estate agent')]
         ])
         return kb
 
@@ -103,10 +105,18 @@ def kb_location(lang) -> InlineKeyboardMarkup:
         return kb
 
 
-def show_budget_options(call: types.CallbackQuery, lang) -> InlineKeyboardMarkup:
+def show_budget_options(call: types.CallbackQuery, rent, lang) -> InlineKeyboardMarkup:
     if call.data == 'usd':
-        options = ['less than 650$', '650 - 1300$', '1300 - 1950$',
-                   '1950 - 2600$', '2600 - 3250$', 'more than 3250$']
+        options = []
+        if rent == 'MONTH':
+            options = ['less than 650$', '650 - 1300$', '1300 - 1950$',
+                       '1950 - 2600$', '2600 - 3250$', 'more than 3250$']
+        elif rent == 'DAY':
+            options = ['less than 20$', '20 - 50$', '50 - 70$',
+                       '70 - 100$', '100 - 140$', 'more than 140$']
+        elif rent == 'YEAR':
+            options = ['less than 8000$', '8000 - 16000$',
+                       '16000 - 24000$', '24000 - 32000$', '32000 - 40000$', 'more than 40000$']
         keyboard = InlineKeyboardMarkup()
         for option in options:
             button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
@@ -125,8 +135,16 @@ def show_budget_options(call: types.CallbackQuery, lang) -> InlineKeyboardMarkup
                     row.remove(button)
             return keyboard
     elif call.data or call == 'rupiah':
-        options = ["less than 10 mln", "10 mln - 20 mln", "20 mln - 30 mln",
-                   "30 mln - 40 mln", "40 mln - 50 mln", "more than 50 mln"]
+        options = []
+        if rent == 'MONTH':
+            options = ["less than 10 mln", "10 mln - 20 mln", "20 mln - 30 mln",
+                       "30 mln - 40 mln", "40 mln - 50 mln", "more than 50 mln"]
+        elif rent == 'DAY':
+            options = ["less than 300k", "300k - 700k", "700k - 1 mln",
+                       "1 mln - 1,5 mln", "1,5 mln - 2 mln", "more than 2 mln"]
+        elif rent == 'YEAR':
+            options = ["less than 120 mln", "120 mln - 240 mln", "240 mln - 360 mln",
+                       "360 mln - 480 mln", "480 mln - 600 mln", "More than 600 mln"]
         keyboard = InlineKeyboardMarkup()
         for option in options:
             button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
@@ -146,10 +164,19 @@ def show_budget_options(call: types.CallbackQuery, lang) -> InlineKeyboardMarkup
             return keyboard
 
 
-def show_budget_options_state(state_data, lang) -> InlineKeyboardMarkup:
+def show_budget_options_state(state_data, rent, lang) -> InlineKeyboardMarkup:
     if state_data == 'usd':
-        options = ['less than 650$', '650 - 1300$', '1300 - 1950$',
-                   '1950 - 2600$', '2600 - 3250$', 'more than 3250$']
+        options = []
+        if rent == 'MONTH':
+            options = ['less than 650$', '650 - 1300$', '1300 - 1950$',
+                       '1950 - 2600$', '2600 - 3250$', 'more than 3250$']
+        elif rent == 'DAY':
+            options = ['less than 20$', '20 - 50$', '50 - 70$',
+                       '70 - 100$', '100 - 140$', 'more than 140$']
+        elif rent == 'YEAR':
+            options = ['less than 8000$', '8000 - 16000$',
+                       '16000 - 24000$', '24000 - 32000$', '32000 - 40000$', 'more than 40000$']
+
         keyboard = InlineKeyboardMarkup()
         for option in options:
             button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")
@@ -168,8 +195,16 @@ def show_budget_options_state(state_data, lang) -> InlineKeyboardMarkup:
                     row.remove(button)
             return keyboard
     elif state_data == 'rupiah':
-        options = ["less than 10 mln", "10 mln - 20 mln", "20 mln - 30 mln",
-                   "30 mln - 40 mln", "40 mln - 50 mln", "more than 50 mln"]
+        options = []
+        if rent == 'MONTH':
+            options = ["less than 10 mln", "10 mln - 20 mln", "20 mln - 30 mln",
+                       "30 mln - 40 mln", "40 mln - 50 mln", "more than 50 mln"]
+        elif rent == 'DAY':
+            options = ["less than 300k", "300k - 700k", "700k - 1 mln",
+                       "1 mln - 1,5 mln", "1,5 mln - 2 mln", "more than 2 mln"]
+        elif rent == 'YEAR':
+            options = ["less than 120 mln", "120 mln - 240 mln", "240 mln - 360 mln",
+                       "360 mln - 480 mln", "480 mln - 600 mln", "More than 600 mln"]
         keyboard = InlineKeyboardMarkup()
         for option in options:
             button = InlineKeyboardButton(option, callback_data=f"select_option:{option}")

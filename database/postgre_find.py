@@ -7,10 +7,18 @@ import asyncio
 def check_budget(currency_str, budget_str):
     try:
         if currency_str == 'usd':
+            if 'less than 20$' in budget_str:
+                budget_str = budget_str.replace('less than 20$', '0 - 20$')
+            if 'more than 140$' in budget_str:
+                budget_str = budget_str.replace('more than 140$', '140 - 1000000$')
             if 'less than 650$' in budget_str:
                 budget_str = budget_str.replace('less than 650$', '0 - 650$')
             if 'more than 3250$' in budget_str:
                 budget_str = budget_str.replace('more than 3250$', '3250 - 1000000$')
+            if 'less than 8000$' in budget_str:
+                budget_str = budget_str.replace('less than 8000$', '0 - 8000$')
+            if 'more than 40000$' in budget_str:
+                budget_str = budget_str.replace('more than 40000$', '40000 - 1000000000$')
             s = budget_str
             budget = re.findall(r'\d+', s)
             budget = [int(n) for n in budget]
@@ -30,6 +38,30 @@ def check_budget(currency_str, budget_str):
                 budget_str = budget_str.replace('40 mln - 50 mln', '40000000 - 50000000')
             if 'more than 50 mln' in budget_str:
                 budget_str = budget_str.replace('more than 50 mln', '50000000 - 1000000000')
+            if 'less than 300k' in budget_str:
+                budget_str = budget_str.replace('less than 300k', '0 - 300000')
+            if '300k - 700k' in budget_str:
+                budget_str = budget_str.replace('300k - 700k', '300000 - 700000')
+            if '700k - 1 mln' in budget_str:
+                budget_str = budget_str.replace('700k - 1 mln', '700000 - 1000000')
+            if '1 mln - 1,5 mln' in budget_str:
+                budget_str = budget_str.replace('1 mln - 1,5 mln', '1000000 - 1500000')
+            if '1,5 mln - 2 mln' in budget_str:
+                budget_str = budget_str.replace('1,5 mln - 2 mln', '1500000 - 2000000')
+            if 'more than 2 mln' in budget_str:
+                budget_str = budget_str.replace('more than 2 mln', '2000000 - 1000000000')
+            if 'less than 120 mln' in budget_str:
+                budget_str = budget_str.replace('less than 120 mln', '0 - 120000000')
+            if '120 mln - 240 mln' in budget_str:
+                budget_str = budget_str.replace('120 mln - 240 mln', '120000000 - 240000000')
+            if '240 mln - 360 mln' in budget_str:
+                budget_str = budget_str.replace('240 mln - 360 mln', '240000000 - 360000000')
+            if '360 mln - 480 mln' in budget_str:
+                budget_str = budget_str.replace('360 mln - 480 mln', '360000000 - 480000000')
+            if '480 mln - 600 mln' in budget_str:
+                budget_str = budget_str.replace('480 mln - 600 mln', '480000000 - 600000000')
+            if 'More than 600 mln' in budget_str:
+                budget_str = budget_str.replace('More than 600 mln', '600000000 - 1000000000')
             s = budget_str
             budget = re.findall(r'\d+', s)
             budget = [int(n) for n in budget]
@@ -114,12 +146,13 @@ def get_apart(rental_period_str, currency_str, budget_str, location_str, accommo
                 int(budget[1]),)
         )
         aps = cur.fetchall()
-        matching_aps = []
-        for n in range(0, count):
-            compare = all(element in aps[n][6].split(",") for element in amenities)
-            if compare:
-                matching_aps.append(aps[n])
-        return matching_aps
+        return aps
+        # matching_aps = []
+        # for n in range(0, count):
+        #     compare = all(element in aps[n][6].split(",") for element in amenities)
+        #     if compare:
+        #         matching_aps.append(aps[n])
+        # return matching_aps
 
 
 def get_image(unique_id):

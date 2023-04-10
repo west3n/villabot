@@ -50,14 +50,21 @@ async def feedback_type_2(message: types.Message):
 
 async def feedback_text(call: types.CallbackQuery, state: FSMContext):
     tg_id = call.from_user.id
+    print(call.data)
     async with state.proxy() as data:
         data['f_type'] = call.data
+    print(data)
     action = 6
     language = await lang(tg_id)
     text = await get_text(action, language)
-    await call.message.delete()
-    await call.message.answer(text=text)
-    await Feedback.next()
+    if call.data == "Real estate agent":
+        await call.message.delete()
+        await call.message.answer(text=text)
+        await Feedback.text.set()
+    else:
+        await call.message.delete()
+        await call.message.answer(text=text)
+        await Feedback.next()
 
 
 async def feedback_finish(msg: types.Message, state: FSMContext):
@@ -116,6 +123,7 @@ def register(dp: Dispatcher):
     dp.register_callback_query_handler(cmd_cancel, text='cancel', state='*')
     dp.register_callback_query_handler(feedback_type, text='feedback')
     dp.register_message_handler(feedback_type_2, commands='feedback', state="*")
+    dp.register_callback_query_handler(feedback_text, text='Real estate agent')
     dp.register_callback_query_handler(feedback_text, state=Feedback.f_type)
     dp.register_message_handler(feedback_finish, state=Feedback.text)
     dp.register_callback_query_handler(feedback_continue, text='continue_chat')
