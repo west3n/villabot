@@ -9,7 +9,8 @@ location_callback = CallbackData("location", "name")
 
 def register() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton('Start registration', callback_data='register')]
+        # [InlineKeyboardButton('Start registration', callback_data='register')]
+        [InlineKeyboardButton('Select language', callback_data='register')]
     ])
     return kb
 
@@ -29,7 +30,8 @@ def get_started(lang) -> InlineKeyboardMarkup:
             [InlineKeyboardButton('Find apartments', callback_data='get_started')],
             [InlineKeyboardButton('Show favorites', callback_data='show_favorite'),
              InlineKeyboardButton('Last saved request', callback_data='last_request')],
-            [InlineKeyboardButton('Edit profile', callback_data='register'),
+            # [InlineKeyboardButton('Edit profile', callback_data='register'),
+            [InlineKeyboardButton('Change language', callback_data='register'),
              InlineKeyboardButton('Send feedback', callback_data='feedback')],
             [InlineKeyboardButton('I am a real estate agent', callback_data='Real estate agent')]
         ])
@@ -39,7 +41,8 @@ def get_started(lang) -> InlineKeyboardMarkup:
             [InlineKeyboardButton('Найти апартаменты', callback_data='get_started')],
             [InlineKeyboardButton('Показать избранное', callback_data='show_favorite')],
             [InlineKeyboardButton('Последний сохраненный запрос', callback_data='last_request')],
-            [InlineKeyboardButton('Изменить профиль', callback_data='register'),
+            # [InlineKeyboardButton('Изменить профиль', callback_data='register'),
+            [InlineKeyboardButton('Изменить язык', callback_data='register'),
              InlineKeyboardButton('Отправить отзыв', callback_data='feedback')],
             [InlineKeyboardButton('Я агент недвижимости', callback_data='Real estate agent')]
         ])
@@ -303,7 +306,7 @@ def searching(lang) -> InlineKeyboardMarkup:
     if lang in ['EN', 'IN']:
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton('Back', callback_data='back'),
-             InlineKeyboardButton('Save', callback_data='save')],
+             InlineKeyboardButton('Save this request', callback_data='save')],
             [InlineKeyboardButton('Search', callback_data='searching')],
             [InlineKeyboardButton('Cancel', callback_data='cancel')]
         ])
@@ -311,7 +314,7 @@ def searching(lang) -> InlineKeyboardMarkup:
     elif lang == 'RU':
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton('Назад', callback_data='back'),
-             InlineKeyboardButton('Сохранить', callback_data='save')],
+             InlineKeyboardButton('Сохранить запрос', callback_data='save')],
             [InlineKeyboardButton('Поиск', callback_data='searching')],
             [InlineKeyboardButton('Отмена', callback_data='cancel')]
         ])
@@ -411,7 +414,7 @@ def feedback(lang) -> InlineKeyboardMarkup:
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton('Problems with the bot', callback_data='Problems with the bot')],
             [InlineKeyboardButton('False information in offers', callback_data='False information in offers')],
-            [InlineKeyboardButton('Communication with the owner of the ad',
+            [InlineKeyboardButton('Communication with offer owner',
                                   callback_data='Communication with the owner of the ad')],
             [InlineKeyboardButton('Other', callback_data='Other')],
             [InlineKeyboardButton('Cancel', callback_data='cancel')]

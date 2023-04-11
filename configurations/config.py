@@ -19,7 +19,8 @@ async def set_default_commands(dp):
         types.BotCommand("start", "Start bot"),
         types.BotCommand("find", "Find apartments"),
         types.BotCommand("favorites", "Show favorites"),
-        types.BotCommand("profile", "Edit profile"),
+        # types.BotCommand("profile", "Edit profile"),
+        types.BotCommand("language", "Edit language"),
         types.BotCommand("request", "Last saved request"),
         types.BotCommand("feedback", "Send feedback")
     ])

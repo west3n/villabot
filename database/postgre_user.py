@@ -17,21 +17,41 @@ async def lang(tg_id):
 
 
 async def add_user(username, tg_id, start_register, last_activity, data, last_name):
+    first_name = " "
+    contact = " "
     cur.execute(
         "INSERT INTO appart_rentuser (first_name, last_name, username, tg_id, "
         "register, last_activity, default_lang, phone, subscribe) "
         "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, false)",
-        (data.get('first_name'), last_name, username, tg_id, start_register,
-         last_activity, data.get('lang'), data.get('contact'),))
+        (first_name,
+         # data.get('first_name'),
+         last_name,
+         username,
+         tg_id,
+         start_register,
+         last_activity,
+         data.get('lang'),
+         # data.get('contact'),
+         contact))
     db.commit()
 
 
 async def update_user(username, tg_id, start_register, last_activity, data, last_name):
+    first_name = " "
+    contact = " "
     cur.execute(
         "UPDATE appart_rentuser SET first_name = %s, last_name = %s, username = %s, register = %s, "
         "last_activity = %s, default_lang = %s, phone = %s WHERE tg_id = %s",
-        (data.get('first_name'), last_name, username, start_register,
-         last_activity, data.get('lang'), data.get('contact'), tg_id))
+        # (data.get('first_name'),
+        (first_name,
+         last_name,
+         username,
+         start_register,
+         last_activity,
+         data.get('lang'),
+         # data.get('contact'),
+         contact,
+         tg_id))
     db.commit()
 
 
