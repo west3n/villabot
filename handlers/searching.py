@@ -12,6 +12,7 @@ from database.postgre_user import lang
 from texts.text import get_text
 from database.postgre_statistic import find_stat, search_stat, apartment_views_amount
 from keyboards import inline
+from google_analytics import analytics
 
 
 class Searching(StatesGroup):
@@ -25,6 +26,7 @@ class Searching(StatesGroup):
 
 
 async def cmd_cancel(call: types.CallbackQuery, state: FSMContext):
+    await analytics.send_analytics(call.from_user.id, call.from_user.language_code, "Searching_Cancel")
     tg_id = call.from_user.id
     await call.message.delete()
     await state.finish()
@@ -37,6 +39,7 @@ async def cmd_cancel(call: types.CallbackQuery, state: FSMContext):
 async def rental_period(call: types.CallbackQuery):
     find_stat()
     await call.message.edit_reply_markup()
+    await analytics.send_analytics(call.from_user.id, call.from_user.language_code, "Searching_Rental_Period")
     language = await lang(call.from_user.id)
     action = 10
     text = await get_text(action, language)
@@ -48,8 +51,8 @@ async def rental_period(call: types.CallbackQuery):
 
 
 async def rental_period_2(message: types.Message):
-    await message.delete()
     find_stat()
+    await analytics.send_analytics(message.from_user.id, message.from_user.language_code, "Searching_Rental_Period")
     language = await lang(message.from_user.id)
     action = 10
     text = await get_text(action, language)
@@ -68,6 +71,7 @@ async def currency(call: types.CallbackQuery, state: FSMContext):
         text = await get_text(action, language)
         await call.message.answer(text=f'{name}, {text}', reply_markup=inline.get_started(language))
     else:
+        await analytics.send_analytics(call.from_user.id, call.from_user.language_code, "Searching_Currency")
         async with state.proxy() as data:
             data['rental_period'] = call.data
         language = await lang(call.from_user.id)
@@ -96,7 +100,6 @@ async def budget(call: types.CallbackQuery, state: FSMContext):
     else:
         language = await lang(call.from_user.id)
 
-
         async with state.proxy() as data:
             data['currency'] = call.data
         rent = data.get('rental_period')
@@ -105,6 +108,7 @@ async def budget(call: types.CallbackQuery, state: FSMContext):
         await Searching.next()
         action = 12
         text = await get_text(action, language)
+        await analytics.send_analytics(call.from_user.id, call.from_user.language_code, "Searching_Budget")
         await call.bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
@@ -182,6 +186,7 @@ async def budget_done_handler(call: types.CallbackQuery, state: FSMContext):
 
 
 async def location_handler(call: types.CallbackQuery, state: FSMContext):
+    await analytics.send_analytics(call.from_user.id, call.from_user.language_code, "Searching_Location")
     await call.answer()
     selected_option = call.data.replace("select_option:", "")
     message_id = call.message.message_id
@@ -263,6 +268,7 @@ async def location_done_handler(call: types.CallbackQuery, state: FSMContext):
 
 async def accommodation_type_handler(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
+    await analytics.send_analytics(call.from_user.id, call.from_user.language_code, "Searching_Type")
     selected_option = call.data.replace("select_option:", "")
     message_id = call.message.message_id
     inline_message_id = call.inline_message_id
@@ -332,6 +338,7 @@ async def accommodation_type_done_handler(call: types.CallbackQuery, state: FSMC
 
 async def amenities_handler(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
+    await analytics.send_analytics(call.from_user.id, call.from_user.language_code, "Searching_Amenities")
     selected_option = call.data.replace("select_option:", "")
     message_id = call.message.message_id
     inline_message_id = call.inline_message_id
@@ -467,6 +474,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
             await state.finish()
             await rental_period(call)
         elif call.data == 'save':
+            await analytics.send_analytics(call.from_user.id, call.from_user.language_code, "Searching_Save_Request")
             language = await lang(call.from_user.id)
             await call.message.edit_reply_markup(reply_markup=inline.searching_2(language))
             await save_request(call.from_user.id, rental_period_str, currency_str, budget_str,
@@ -477,6 +485,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
             await call.answer(text=text,
                               show_alert=True)
         elif call.data == 'searching':
+            await analytics.send_analytics(call.from_user.id, call.from_user.language_code, "Searching_Searching")
             search_stat()
             language = await lang(call.from_user.id)
             action = 18

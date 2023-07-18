@@ -10,6 +10,7 @@ from database.postgre_user import lang
 from texts.text import get_text
 
 
+
 async def show_favorite(call: types.CallbackQuery):
     await call.message.delete()
     tg_id = call.from_user.id

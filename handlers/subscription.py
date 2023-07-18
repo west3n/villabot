@@ -22,13 +22,15 @@ async def apartment_contacts(call: types.CallbackQuery):
     apartment_contacts_amount(unique_id)
     cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
     contact = cur.fetchone()
+    cur.execute(f"SELECT aps_type, location_id FROM appart_apartment WHERE id=%s", (unique_id,))
+    info = cur.fetchone()
     if language in ["EN", "IN"]:
         await call.message.reply(
-            f"<b>Agent name:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
+            f"<b>Agent name:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], info[0], info[1], language)
         )
     elif language == "RU":
         await call.message.reply(
-            f"<b>Имя агента:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
+            f"<b>Имя агента:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], info[0], info[1], language)
         )
     #else:
         #text = await get_text(19, language)
@@ -47,13 +49,15 @@ async def apartment_contacts_favorites(call: types.CallbackQuery):
     apartment_contacts_amount(unique_id)
     cur.execute(f"SELECT agent_name, agent_whats_up FROM appart_apartment WHERE id=%s", (unique_id,))
     contact = cur.fetchone()
+    cur.execute(f"SELECT aps_type, location_id FROM appart_apartment WHERE id=%s", (unique_id,))
+    info = cur.fetchone()
     if language in ["EN", "IN"]:
         await call.message.reply(
-            f"<b>Agent name:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
+            f"<b>Agent name:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], info[0], info[1], language)
         )
     elif language == "RU":
         await call.message.reply(
-            f"<b>Имя агента:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], language)
+            f"<b>Имя агента:</b> {contact[0]}\n", reply_markup=inline.agent_link(contact[1], info[0], info[1], language)
         )
     #else:
         #text = await get_text(19, language)
