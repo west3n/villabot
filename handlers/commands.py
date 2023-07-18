@@ -8,6 +8,8 @@ from database.postgre_user import lang
 from texts.text import get_text
 from database.postgre_statistic import cmd_start_stat, link_stat
 from handlers.registration import sh_update_last_activity
+from google_analytics import analytics
+from handlers.searching import rental_period_2
 
 
 async def bot_start(msg: types.Message, state: FSMContext):

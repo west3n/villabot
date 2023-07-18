@@ -7,7 +7,7 @@ from database.postgre_statistic import contact_stat, subscribe_stat, apartment_f
 from psycopg2.errors import UniqueViolation, InFailedSqlTransaction
 from keyboards import inline
 from texts.text import get_text
-
+from google_analytics import analytics
 
 # pay_token = config("PAY_TOKEN")
 
