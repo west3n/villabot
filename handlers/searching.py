@@ -99,7 +99,6 @@ async def budget(call: types.CallbackQuery, state: FSMContext):
         await Searching.rental_period.set()
     else:
         language = await lang(call.from_user.id)
-
         async with state.proxy() as data:
             data['currency'] = call.data
         rent = data.get('rental_period')
@@ -516,24 +515,24 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
                 location_id = ap[13]
                 location = get_location_name(location_id)[0]
                 image = get_image(ap[1])
-                photo_files = [os.path.join('/projects/Django/BaliAdmin', f) for f in image]
-                media = []
-                with open(photo_files[0], "rb") as f:
-                    photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])
-                    caption = f'<b>Type:</b> {ap_type}\n' \
-                              f'<b>Location</b>: {location}\n' \
-                              f'<b>Amenities:</b> {ap[7]}\n' \
-                              f'<b>Rent period:</b> {ap[8]}\n' \
-                              f'<b>Price Rupee:</b> {format_number(ap[9])}\n' \
-                              f'<b>Price USD:</b> {ap[10]}\n' \
-                              f'<b>Description:</b> {ap[11]}'
-                    media.append(types.InputMediaPhoto(media=photo, caption=caption))
-                for file in photo_files[1:]:
-                    with open(file, "rb") as f:
-                        photo = types.InputFile(io.BytesIO(f.read()), filename=file)
-                        media.append(types.InputMediaPhoto(media=photo, caption=caption))
-                text_message = await call.bot.send_media_group(chat_id=call.message.chat.id,
-                                                               media=media)
+                #photo_files = [os.path.join('/projects/Django/BaliAdmin', f) for f in image]
+                #media = []
+                #with open(photo_files[0], "rb") as f:
+                    #photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])
+                    # caption = f'<b>Type:</b> {ap_type}\n' \
+                    #           f'<b>Location</b>: {location}\n' \
+                    #           f'<b>Amenities:</b> {ap[7]}\n' \
+                    #           f'<b>Rent period:</b> {ap[8]}\n' \
+                    #           f'<b>Price Rupee:</b> {format_number(ap[9])}\n' \
+                    #           f'<b>Price USD:</b> {ap[10]}\n' \
+                    #           f'<b>Description:</b> {ap[11]}'
+                #     media.append(types.InputMediaPhoto(media=photo, caption=caption))
+                # for file in photo_files[1:]:
+                #     with open(file, "rb") as f:
+                #         photo = types.InputFile(io.BytesIO(f.read()), filename=file)
+                #         media.append(types.InputMediaPhoto(media=photo, caption=caption))
+                # text_message = await call.bot.send_media_group(chat_id=call.message.chat.id,
+                #                                                media=media)
                 language = await lang(call.from_user.id)
                 apartment_views_amount(int(ap[1]))
                 if language in ['EN', 'IN']:

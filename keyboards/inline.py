@@ -2,7 +2,8 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram import types
 
 from aiogram.utils.callback_data import CallbackData
-from database.postgre_location import get_location, cur
+from database.postgre_location import get_location
+from database.postgre import connect
 
 location_callback = CallbackData("location", "name")
 
@@ -449,6 +450,7 @@ def request(lang) -> InlineKeyboardMarkup:
 
 
 def agent_link(url, _type, location, lang) -> InlineKeyboardMarkup:
+
     if "wa.me" in url:
         if _type == 'VI':
             _type = 'Villa Entirely'
@@ -458,10 +460,16 @@ def agent_link(url, _type, location, lang) -> InlineKeyboardMarkup:
             _type = 'Apartment'
         if _type == 'GH':
             _type = 'Guesthouse'
-        cur.execute("SELECT name FROM appart_location WHERE id=%s", (location,))
-        location_name = cur.fetchone()
+        db, cur = connect()
+        try:
+            cur.execute("SELECT name FROM appart_location WHERE id=%s", (location,))
+            location_name = cur.fetchone()
+        finally:
+            db.close()
+            cur.close()
         print(location_name[0])
         url = f"{url}?text=Hi!%20I%20have%20found%20your%20rental%20ad%20{_type}%20in%20{location_name[0]}%20in%20rentee%20bot%20https://t.me/rentee_bot.%20Is%20it%20actual?"
+
     if lang in ['EN', 'IN']:
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(f"Go to Agent's link", url=url)]

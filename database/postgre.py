@@ -1,12 +1,24 @@
 import psycopg2
+import decouple
 
-db = psycopg2.connect(
-    host="db-villabot-do-user-13857954-0.b.db.ondigitalocean.com",
-    database="defaultdb",
-    user="doadmin",
-    password="AVNS_9TWJQ4KUZGhFG6d7kFX",
-    port="25060"
 
-)
-
-cur = db.cursor()
+def connect():
+    try:
+        db = psycopg2.connect(
+            host=decouple.config('DB_HOST'),
+            database=decouple.config('DB_NAME'),
+            user=decouple.config('DB_USER'),
+            password=decouple.config('DB_PASS'),
+            port=decouple.config('DB_PORT')
+        )
+        cur = db.cursor()
+    except psycopg2.Error:
+        db = psycopg2.connect(
+            host=decouple.config('DB_HOST'),
+            database=decouple.config('DB_NAME'),
+            user=decouple.config('DB_USER'),
+            password=decouple.config('DB_PASS'),
+            port=decouple.config('DB_PORT')
+        )
+        cur = db.cursor()
+    return db, cur
