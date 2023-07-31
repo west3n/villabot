@@ -545,7 +545,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
                                                      f'<b>Price Rupee:</b> {format_number(ap[9])}\n'
                                                      f'<b>Price USD:</b> {ap[10]}$\n'
                                                      f'<b>Description:</b> {ap[11]}',
-                                                reply_to_message_id=text_message[0].message_id,
+                                                #reply_to_message_id=text_message[0].message_id,
                                                 reply_markup=inline.apartment_contacts(str(ap[1]), language))
                 elif language == 'RU':
                     await call.bot.send_message(chat_id=call.message.chat.id,
@@ -557,7 +557,7 @@ async def searching_finish(call: types.CallbackQuery, state: FSMContext):
                                                      f'<b>Цена в рупиях:</b> {format_number(ap[9])}\n'
                                                      f'<b>Цена в долларах:</b> {ap[10]}$\n'
                                                      f'<b>Описание:</b> {ap[11]}',
-                                                reply_to_message_id=text_message[0].message_id,
+                                                #reply_to_message_id=text_message[0].message_id,
                                                 reply_markup=inline.apartment_contacts(str(ap[1]), language))
 
 

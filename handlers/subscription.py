@@ -124,8 +124,8 @@ async def turn_on_subscription(call: types.CallbackQuery):
         chat_id=call.message.chat.id,
         title='Monthly subscription',
         description="To pay, click on the button below",
-        #provider_token=pay_token,
-        currency='USD',
+        provider_token=pay_token,
+        currency='RUB',
         prices=prices,
         payload='PAYMENT_PAYLOAD'
     )
