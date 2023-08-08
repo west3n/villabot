@@ -19,6 +19,7 @@ from handlers.subscription import invoice_one
 async def bot_start(msg: types.Message, state: FSMContext):
     await state.finish()
     if msg.get_args():
+        print(msg.get_args())
         if msg.get_args().split("_")[0] == "find":
             await analytics.send_analytics(msg.from_user, msg.from_user.language_code, msg.get_args().split(":")[1])
             tg_id = int(msg.from_id)
@@ -73,6 +74,17 @@ async def bot_start(msg: types.Message, state: FSMContext):
             action = 1
             language = await lang(tg_id)
             text = await get_text(action, language)
+            date_start = await postgre_user.get_user_data(msg.from_user.id)
+            try:
+                date_start = date_start[10]
+            except TypeError:
+                date_start = None
+            if language in ['EN', 'IN']:
+                text += f"\n\nSubscription end date: " \
+                        f"{date_start.strftime('%d.%m.%Y')}" if date_start else ""
+            else:
+                text += f"\n\nДата окончания подписки: " \
+                        f"{date_start.strftime('%d.%m.%Y')}" if date_start else ""
             await msg.answer(text=f'{name}, {text}', reply_markup=inline.get_started(language))
         else:
             link_stat()
