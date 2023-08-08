@@ -113,24 +113,24 @@ async def request_searching(call: types.CallbackQuery):
         location_id = ap[13]
         location = get_location_name(location_id)[0]
         image = get_image(ap[1])
-        photo_files = [os.path.join('/projects/Django/BaliAdmin', f) for f in image]
-        media = []
-        with open(photo_files[0], "rb") as f:
-            photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])
-            caption = f'<b>Type:</b> {ap_type}\n' \
-                      f'<b>Location</b>: {location}\n' \
-                      f'<b>Amenities:</b> {ap[7]}\n' \
-                      f'<b>Rent period:</b> {ap[8]}\n' \
-                      f'<b>Price Rupee:</b> {ap[9]}\n' \
-                      f'<b>Price USD:</b> {ap[10]}\n' \
-                      f'<b>Description:</b> {ap[11]}'
-            media.append(types.InputMediaPhoto(media=photo, caption=caption))
-        for file in photo_files[1:]:
-            with open(file, "rb") as f:
-                photo = types.InputFile(io.BytesIO(f.read()), filename=file)
-                media.append(types.InputMediaPhoto(media=photo, caption=caption))
-        text_message = await call.bot.send_media_group(chat_id=call.message.chat.id,
-                                                       media=media)
+        # photo_files = [os.path.join('/projects/Django/BaliAdmin', f) for f in image]
+        # media = []
+        # with open(photo_files[0], "rb") as f:
+        #     photo = types.InputFile(io.BytesIO(f.read()), filename=photo_files[0])
+        #     caption = f'<b>Type:</b> {ap_type}\n' \
+        #               f'<b>Location</b>: {location}\n' \
+        #               f'<b>Amenities:</b> {ap[7]}\n' \
+        #               f'<b>Rent period:</b> {ap[8]}\n' \
+        #               f'<b>Price Rupee:</b> {ap[9]}\n' \
+        #               f'<b>Price USD:</b> {ap[10]}\n' \
+        #               f'<b>Description:</b> {ap[11]}'
+        #     media.append(types.InputMediaPhoto(media=photo, caption=caption))
+        # for file in photo_files[1:]:
+        #     with open(file, "rb") as f:
+        #         photo = types.InputFile(io.BytesIO(f.read()), filename=file)
+        #         media.append(types.InputMediaPhoto(media=photo, caption=caption))
+        # text_message = await call.bot.send_media_group(chat_id=call.message.chat.id,
+        #                                                media=media)
         apartment_views_amount(int(ap[1]))
         if language in ['EN', 'IN']:
             await call.bot.send_message(chat_id=call.message.chat.id,
@@ -142,7 +142,7 @@ async def request_searching(call: types.CallbackQuery):
                                              f'<b>Price Rupee:</b> {format_number(ap[9])}\n'
                                              f'<b>Price USD:</b> {ap[10]}$\n'
                                              f'<b>Description:</b> {ap[11]}',
-                                        reply_to_message_id=text_message[0].message_id,
+                                        # reply_to_message_id=text_message[0].message_id,
                                         reply_markup=inline.apartment_contacts(str(ap[1]), language))
         elif language == 'RU':
             await call.bot.send_message(chat_id=call.message.chat.id,
@@ -154,7 +154,7 @@ async def request_searching(call: types.CallbackQuery):
                                              f'<b>Цена в рупиях:</b> {format_number(ap[9])}\n'
                                              f'<b>Цена в долларах:</b> {ap[10]}$\n'
                                              f'<b>Описание:</b> {ap[11]}',
-                                        reply_to_message_id=text_message[0].message_id,
+                                        # reply_to_message_id=text_message[0].message_id,
                                         reply_markup=inline.apartment_contacts(str(ap[1]), language))
 
 

@@ -106,7 +106,6 @@ async def registration_finish(call: types.CallbackQuery, state: FSMContext):
     stat = await status(tg_id)
     cell_list = worksheet.findall(str(tg_id), in_column=1)
     first_name = " "
-    contact_data = " "
     if stat:
         await state.finish()
         await call.message.answer(f'Update profile complete! Please, press command /start', reply_markup=remove)
@@ -117,7 +116,6 @@ async def registration_finish(call: types.CallbackQuery, state: FSMContext):
                      # str(data.get("first_name")),
                      first_name,
                      full_name,
-                     contact_data,
                      # data.get("contact"),
                      data.get('lang'),
                      start_register.strftime("%Y-%m-%d %H:%M:%S"),

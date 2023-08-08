@@ -450,7 +450,6 @@ def request(lang) -> InlineKeyboardMarkup:
 
 
 def agent_link(url, _type, location, lang) -> InlineKeyboardMarkup:
-
     if "wa.me" in url:
         if _type == 'VI':
             _type = 'Villa Entirely'
@@ -478,5 +477,20 @@ def agent_link(url, _type, location, lang) -> InlineKeyboardMarkup:
     elif lang == 'RU':
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(f'Перейти по ссылке для связи с агентом', url=url)]
+        ])
+        return kb
+
+
+def link_to_payments(yookassa_link, thedex_link, lang):
+    if lang in ['EN', 'IN']:
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(f"Pay with RUB", url=yookassa_link)],
+            [InlineKeyboardButton(f"Pay with CRYPTO", url=thedex_link)]
+        ])
+        return kb
+    elif lang == 'RU':
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(f'Оплатить рублями', url=yookassa_link)],
+            [InlineKeyboardButton(f'Оплатить криптовалютой', url=thedex_link)]
         ])
         return kb
